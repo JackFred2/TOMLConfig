@@ -11,6 +11,9 @@ plugins {
     id 'java-library'
 }
 
+group = 'red.jackf'
+version = '0.1.0'
+
 repositories {
     // Use JCenter for resolving dependencies.
     jcenter()
@@ -25,4 +28,15 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:29.0-jre'
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes('Implementation-Title': project.name,
+                'Implementation-Version': project.version)
+    }
 }
