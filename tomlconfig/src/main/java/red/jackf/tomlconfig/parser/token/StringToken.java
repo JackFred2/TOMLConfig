@@ -6,15 +6,7 @@ public class StringToken extends Token {
 
     public StringToken(String text, Type type) {
         this.type = type;
-
-        switch (type) {
-            case BASIC_MULTILINE:
-                // remove backslashes followed by newlines and whitespace
-                this.text = text.replaceAll("(?:^|[^\\\\])(?:\\\\\\\\)*(\\\\\n[\t \n]*)", "");
-                break;
-            default:
-                this.text = text;
-        }
+        this.text = text;
     }
 
     public Type getType() {
@@ -34,10 +26,7 @@ public class StringToken extends Token {
     }
 
     public enum Type {
-        BARE,
         BASIC,
-        LITERAL,
-        BASIC_MULTILINE,
-        LITERAL_MULTILINE
+        LITERAL
     }
 }
