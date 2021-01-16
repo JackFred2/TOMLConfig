@@ -10,7 +10,7 @@ public class BooleanToken extends Token {
         else throw new IllegalArgumentException("Invalid boolean value");
     }
 
-    public boolean isValue() {
+    public boolean getValue() {
         return value;
     }
 

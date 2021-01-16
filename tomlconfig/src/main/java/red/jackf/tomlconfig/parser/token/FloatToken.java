@@ -2,9 +2,11 @@ package red.jackf.tomlconfig.parser.token;
 
 public class FloatToken extends Token {
     private final double value;
+    private final String raw;
 
     public FloatToken(int index, String text, boolean special) {
         super(index);
+        raw = text;
         if (special) {
             char first = text.charAt(0);
             if (first == '-') {
@@ -25,7 +27,7 @@ public class FloatToken extends Token {
                 else if (text.equals("inf")) value = Double.POSITIVE_INFINITY;
                 else throw new IllegalArgumentException("Not a valid special double.");
             }
-        } else value = Double.parseDouble(text);
+        } else value = Double.parseDouble(text.replace("_", ""));
     }
 
     public double getValue() {
@@ -37,5 +39,9 @@ public class FloatToken extends Token {
         return "FloatToken{" +
             "value=" + value +
             '}';
+    }
+
+    public String getRaw() {
+        return raw;
     }
 }

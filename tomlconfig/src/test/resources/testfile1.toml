@@ -1,0 +1,7 @@
+[table."name"]
+array = [2]
+324 = [ ["nested2"] ]
+false = "twat"
+#comment
+doubleArray = [[6e+43_4]]
+6e-5 = "bad practice"

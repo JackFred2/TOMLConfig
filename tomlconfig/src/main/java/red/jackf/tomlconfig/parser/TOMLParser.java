@@ -1,6 +1,7 @@
 package red.jackf.tomlconfig.parser;
 
 import red.jackf.tomlconfig.parser.token.*;
+import red.jackf.tomlconfig.parser.token.processing.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,10 +13,89 @@ public class TOMLParser {
     public static final TOMLParser INSTANCE = new TOMLParser();
 
     public void parse(String contents) {
-        List<Token> tokens = tokenize(contents);
-        Deque<Token> tokenStack = new ArrayDeque<>();
+        List<Token> rawTokens = tokenize(contents);
+        List<Token> tokens = preprocess(rawTokens);
+        System.out.println(tokens);
     }
 
+    // Process out the ambiguous tokens
+    public List<Token> preprocess(List<Token> tokens) {
+        List<Token> processed = new ArrayList<>();
+        boolean tableName = false;
+        boolean tableArrayName = false;
+        for (int i = 0; i < tokens.size(); i++) {
+            Token token = tokens.get(i);
+            Token last = i > 0 ? tokens.get(i - 1) : null;
+            Token next = i < tokens.size() - 1 ? tokens.get(i + 1) : null;
+
+            Token toAdd = token;
+
+            if (toAdd instanceof LeftBracketToken) { // [
+                if (processed.size() > 0) {
+                    if (last instanceof AssignmentToken || last instanceof SeparatorToken || last instanceof ArrayBeginToken) {
+                        toAdd = new ArrayBeginToken(toAdd.getIndex());
+                    } else {
+                        toAdd = new TableBeginToken(toAdd.getIndex());
+                    }
+                } else {
+                    toAdd = new TableBeginToken(toAdd.getIndex());
+                }
+            } else if (toAdd instanceof RightBracketToken) { // ]
+                if (tableName) {
+                    toAdd = new TableEndToken(toAdd.getIndex());
+                } else {
+                    toAdd = new ArrayEndToken(toAdd.getIndex());
+                }
+            } else if (toAdd instanceof DoubleLeftBracketToken) { // [[
+                if (last instanceof EndOfLineToken) {
+                    toAdd = new TableArrayBeginToken(toAdd.getIndex());
+                } else {
+                    processed.add(new ArrayBeginToken(toAdd.getIndex()));
+                    toAdd = new ArrayBeginToken(toAdd.getIndex() + 1);
+                }
+            } else if (toAdd instanceof DoubleRightBracketToken) { // ]]
+                if (tableArrayName) {
+                    toAdd = new TableArrayEndToken(toAdd.getIndex());
+                } else {
+                    processed.add(new ArrayEndToken(toAdd.getIndex()));
+                    toAdd = new ArrayEndToken(toAdd.getIndex() + 1);
+                }
+            }
+
+            // Correcting token types (boolean, int, float as keys even thought you shouldn't be doing that)
+            if (next instanceof AssignmentToken) {
+                System.out.println(toAdd);
+                if (toAdd instanceof IntegerToken) {
+                    toAdd = new BareStringToken(toAdd.getIndex(), ((IntegerToken) toAdd).getRaw());
+                } else if (toAdd instanceof FloatToken && ((FloatToken) toAdd).getRaw().matches("^[eE0-9-_]*$")) {
+                    toAdd = new BareStringToken(toAdd.getIndex(), ((FloatToken) toAdd).getRaw());
+                } else if (toAdd instanceof BooleanToken) {
+                    toAdd = new BareStringToken(toAdd.getIndex(), ((BooleanToken) token).getValue() ? "true" : "false");
+                }
+            }
+
+            processed.add(toAdd);
+
+
+            if (tableName) {
+                if (last instanceof TableBeginToken || last instanceof KeyJoinToken) tableName = toAdd instanceof BareStringToken || toAdd instanceof StringToken;
+                else tableName = toAdd instanceof KeyJoinToken;
+            } else {
+                if (toAdd instanceof TableBeginToken) tableName = true;
+            }
+
+            if (tableArrayName) {
+                if (last instanceof TableArrayBeginToken || last instanceof KeyJoinToken) tableArrayName = toAdd instanceof BareStringToken || toAdd instanceof StringToken;
+                else tableArrayName = toAdd instanceof KeyJoinToken;
+            } else {
+                if (toAdd instanceof TableArrayBeginToken) tableArrayName = true;
+            }
+        }
+
+        return processed;
+    }
+
+    // Get initial tokens from the string
     public List<Token> tokenize(String contents) {
         StringReader reader = new StringReader(contents);
         List<Token> tokens = new ArrayList<>();
@@ -50,14 +130,14 @@ public class TOMLParser {
         } else if ((matcher = KEY_JOIN.matcher(toRead)).find()) {
             token = new KeyJoinToken(contents.index);
 
-        } else if ((matcher = DOUBLE_LEFT_BRACKET.matcher(toRead)).find()) {
+        } else if ((matcher = DOUBLE_LEFT_BRACKET.matcher(toRead)).find()) { // table array begin or two left brackets (below)
             token = new DoubleLeftBracketToken(contents.index);
-        } else if ((matcher = DOUBLE_RIGHT_BRACKET.matcher(toRead)).find()) {
+        } else if ((matcher = DOUBLE_RIGHT_BRACKET.matcher(toRead)).find()) { // table array end or two left brackets (below)
             token = new DoubleRightBracketToken(contents.index);
 
-        } else if ( (matcher = LEFT_BRACKET.matcher(toRead)).find()) {
+        } else if ( (matcher = LEFT_BRACKET.matcher(toRead)).find()) { // table name begin or array begin
             token = new LeftBracketToken(contents.index);
-        } else if ((matcher = RIGHT_BRACKET.matcher(toRead)).find()) {
+        } else if ((matcher = RIGHT_BRACKET.matcher(toRead)).find()) { // table name end or array end
             token = new RightBracketToken(contents.index);
 
         } else if ( (matcher = INLINE_TABLE_BEGIN.matcher(toRead)).find()) {
@@ -66,7 +146,7 @@ public class TOMLParser {
             token = new InlineTableEndToken(contents.index);
 
         } else if ((matcher = SEPARATOR.matcher(toRead)).find()) {
-            token = new SeparatorToken(contents.index);
+            token = new SeparatorToken(contents.index); // array separator or inline table separator
 
         } else if ((matcher = BOOLEAN.matcher(toRead)).find()) {
             token = new BooleanToken(contents.index, matcher.group());
@@ -99,7 +179,7 @@ public class TOMLParser {
             token = new StringToken(contents.index, matcher.group("contents"), StringToken.Type.LITERAL);
 
         } else {
-            throw new IllegalArgumentException("Unknown token in '"+ toRead.substring(0, 15) + "'");
+            throw new IllegalArgumentException("Unknown token at " + contents.index + ": '" + toRead.substring(0, 15) + "'");
         }
         contents.addIndex(matcher.end());
         return token;

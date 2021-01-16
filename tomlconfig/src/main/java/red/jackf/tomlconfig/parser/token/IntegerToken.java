@@ -2,10 +2,12 @@ package red.jackf.tomlconfig.parser.token;
 
 public class IntegerToken extends Token {
     private final int value;
+    private final String raw;
 
-    public IntegerToken(int index, String text, int radix) {
+    public IntegerToken(int index, String raw, int radix) {
         super(index);
-        this.value = Integer.valueOf(text, radix);
+        this.raw = raw;
+        this.value = Integer.valueOf(raw.replace("_", ""), radix);
     }
 
     public int getValue() {
@@ -17,5 +19,9 @@ public class IntegerToken extends Token {
         return "IntegerToken{" +
             "value=" + value +
             '}';
+    }
+
+    public String getRaw() {
+        return raw;
     }
 }
