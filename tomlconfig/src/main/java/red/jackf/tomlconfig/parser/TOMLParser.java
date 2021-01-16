@@ -19,16 +19,14 @@ public class TOMLParser {
     public List<Token> tokenize(String contents) {
         StringReader reader = new StringReader(contents);
         List<Token> tokens = new ArrayList<>();
-        ParserState state = ParserState.initial();
         while (!reader.ended()) {
-            Token token = getNextToken(reader, state.getExpects());
-            state = state.getAfter(token.getClass());
+            Token token = getNextToken(reader);
             tokens.add(token);
         }
         return tokens;
     }
 
-    public Token getNextToken(StringReader contents, Set<Class<? extends Token>> expects) {
+    public Token getNextToken(StringReader contents) {
         String toRead = contents.getRemaining();
         Matcher matcher;
         Token token;
@@ -41,54 +39,67 @@ public class TOMLParser {
         }
 
         if ((matcher = COMMENT.matcher(toRead)).find()) {
-            token = new CommentToken();
+            token = new CommentToken(contents.index);
 
         } else if ((matcher = END_OF_LINE.matcher(toRead)).find()) {
-            token = new EndOfLineToken();
+            token = new EndOfLineToken(contents.index);
 
-        } else if (expects.contains(AssignmentToken.class) && (matcher = ASSIGNMENT.matcher(toRead)).find()) {
-            token = new AssignmentToken();
+        } else if ((matcher = ASSIGNMENT.matcher(toRead)).find()) {
+            token = new AssignmentToken(contents.index);
 
-        } else if (expects.contains(KeyJoinToken.class) && (matcher = KEY_JOIN.matcher(toRead)).find()) {
-            token = new KeyJoinToken();
+        } else if ((matcher = KEY_JOIN.matcher(toRead)).find()) {
+            token = new KeyJoinToken(contents.index);
 
-        } else if (expects.contains(TableBeginToken.class) && (matcher = TABLE_BEGIN.matcher(toRead)).find()) {
-            token = new TableBeginToken();
-        } else if (expects.contains(TableEndToken.class) && (matcher = TABLE_END.matcher(toRead)).find()) {
-            token = new TableEndToken();
+        } else if ((matcher = DOUBLE_LEFT_BRACKET.matcher(toRead)).find()) {
+            token = new DoubleLeftBracketToken(contents.index);
+        } else if ((matcher = DOUBLE_RIGHT_BRACKET.matcher(toRead)).find()) {
+            token = new DoubleRightBracketToken(contents.index);
 
-        } else if (expects.contains(BooleanToken.class) && (matcher = BOOLEAN.matcher(toRead)).find()) {
-            token = new BooleanToken(matcher.group());
+        } else if ( (matcher = LEFT_BRACKET.matcher(toRead)).find()) {
+            token = new LeftBracketToken(contents.index);
+        } else if ((matcher = RIGHT_BRACKET.matcher(toRead)).find()) {
+            token = new RightBracketToken(contents.index);
 
-        } else if (expects.contains(FloatToken.class) && (matcher = SPECIAL_FLOAT.matcher(toRead)).find()) {
-            token = new FloatToken(matcher.group(1), true);
-        } else if (expects.contains(FloatToken.class) && (matcher = STANDARD_FLOAT.matcher(toRead)).find()) {
-            token = new FloatToken(matcher.group(1), false);
+        } else if ( (matcher = INLINE_TABLE_BEGIN.matcher(toRead)).find()) {
+            token = new InlineTableBeginToken(contents.index);
+        } else if ((matcher = INLINE_TABLE_END.matcher(toRead)).find()) {
+            token = new InlineTableEndToken(contents.index);
 
-        } else if (expects.contains(IntegerToken.class) && (matcher = DEC_INTEGER.matcher(toRead)).find()) {
-            token = new IntegerToken(matcher.group(1), 10);
-        } else if (expects.contains(IntegerToken.class) && (matcher = HEX_INTEGER.matcher(toRead)).find()) {
-            token = new IntegerToken(matcher.group(1), 16);
-        } else if (expects.contains(IntegerToken.class) && (matcher = OCT_INTEGER.matcher(toRead)).find()) {
-            token = new IntegerToken(matcher.group(1), 8);
-        } else if (expects.contains(IntegerToken.class) && (matcher = BIN_INTEGER.matcher(toRead)).find()) {
-            token = new IntegerToken(matcher.group(1), 2);
+        } else if ((matcher = SEPARATOR.matcher(toRead)).find()) {
+            token = new SeparatorToken(contents.index);
 
-        } else if (expects.contains(BareStringToken.class) && (matcher = BARE_STRING.matcher(toRead)).find()) { // Bare Strings (Keys)
-            token = new BareStringToken(matcher.group("contents"));
+        } else if ((matcher = BOOLEAN.matcher(toRead)).find()) {
+            token = new BooleanToken(contents.index, matcher.group());
 
-        } else if (expects.contains(MultilineStringToken.class) && (matcher = BASIC_MULTILINE_STRING.matcher(toRead)).find()) { // Multi Line Strings
-            token = new MultilineStringToken(matcher.group("contents"), MultilineStringToken.Type.BASIC);
-        } else if (expects.contains(MultilineStringToken.class) && (matcher = LITERAL_MULTILINE_STRING.matcher(toRead)).find()) {
-            token = new MultilineStringToken(matcher.group("contents"), MultilineStringToken.Type.LITERAL);
+        } else if ((matcher = SPECIAL_FLOAT.matcher(toRead)).find()) {
+            token = new FloatToken(contents.index, matcher.group(1), true);
+        } else if ((matcher = STANDARD_FLOAT.matcher(toRead)).find()) {
+            token = new FloatToken(contents.index, matcher.group(1), false);
 
-        } else if (expects.contains(StringToken.class) && (matcher = BASIC_STRING.matcher(toRead)).find()) { // Single Line Strings
-            token = new StringToken(matcher.group("contents"), StringToken.Type.BASIC);
-        } else if (expects.contains(StringToken.class) && (matcher = LITERAL_STRING.matcher(toRead)).find()) {
-            token = new StringToken(matcher.group("contents"), StringToken.Type.LITERAL);
+        } else if ((matcher = DEC_INTEGER.matcher(toRead)).find()) {
+            token = new IntegerToken(contents.index, matcher.group(1), 10);
+        } else if ((matcher = HEX_INTEGER.matcher(toRead)).find()) {
+            token = new IntegerToken(contents.index, matcher.group(1), 16);
+        } else if ((matcher = OCT_INTEGER.matcher(toRead)).find()) {
+            token = new IntegerToken(contents.index, matcher.group(1), 8);
+        } else if ((matcher = BIN_INTEGER.matcher(toRead)).find()) {
+            token = new IntegerToken(contents.index, matcher.group(1), 2);
+
+        } else if ((matcher = BARE_STRING.matcher(toRead)).find()) { // Bare Strings (Keys)
+            token = new BareStringToken(contents.index, matcher.group("contents"));
+
+        } else if ((matcher = BASIC_MULTILINE_STRING.matcher(toRead)).find()) { // Multi Line Strings
+            token = new MultilineStringToken(contents.index, matcher.group("contents"), MultilineStringToken.Type.BASIC);
+        } else if ((matcher = LITERAL_MULTILINE_STRING.matcher(toRead)).find()) {
+            token = new MultilineStringToken(contents.index, matcher.group("contents"), MultilineStringToken.Type.LITERAL);
+
+        } else if ((matcher = BASIC_STRING.matcher(toRead)).find()) { // Single Line Strings
+            token = new StringToken(contents.index, matcher.group("contents"), StringToken.Type.BASIC);
+        } else if ((matcher = LITERAL_STRING.matcher(toRead)).find()) {
+            token = new StringToken(contents.index, matcher.group("contents"), StringToken.Type.LITERAL);
 
         } else {
-            throw new IllegalArgumentException("Unknown token (expected one of " + expects + " in " + toRead.substring(0, 15) + ")");
+            throw new IllegalArgumentException("Unknown token in '"+ toRead.substring(0, 15) + "'");
         }
         contents.addIndex(matcher.end());
         return token;

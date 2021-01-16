@@ -4,7 +4,8 @@ public class MultilineStringToken extends Token {
     private final String text;
     private final Type type;
 
-    public MultilineStringToken(String text, Type type) {
+    public MultilineStringToken(int index, String text, Type type) {
+        super(index);
         this.text = type == Type.BASIC ? text.replaceAll("(?:^|[^\\\\])(?:\\\\\\\\)*(\\\\\n[\t \n]*)", "") : text;
         this.type = type;
     }
@@ -20,5 +21,13 @@ public class MultilineStringToken extends Token {
     public enum Type {
         BASIC,
         LITERAL
+    }
+
+    @Override
+    public String toString() {
+        return "MultilineStringToken{" +
+            "text='" + text + '\'' +
+            ", type=" + type +
+            '}';
     }
 }

@@ -3,7 +3,8 @@ package red.jackf.tomlconfig.parser.token;
 public class FloatToken extends Token {
     private final double value;
 
-    public FloatToken(String text, boolean special) {
+    public FloatToken(int index, String text, boolean special) {
+        super(index);
         if (special) {
             char first = text.charAt(0);
             if (first == '-') {
@@ -29,5 +30,12 @@ public class FloatToken extends Token {
 
     public double getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "FloatToken{" +
+            "value=" + value +
+            '}';
     }
 }

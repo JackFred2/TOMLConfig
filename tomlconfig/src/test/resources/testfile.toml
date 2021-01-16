@@ -7,6 +7,18 @@ references = true
 #Set this to false to disable Botania's splashes in the main menu.
 "splashes" = true
 
+#test array
+test_array = [1, 2, "three", [["subarray", { "with" = """\"inline tables!"""}]]]
+
+[[array]]
+foo = 1
+
+[[array]]
+foo = 2
+
+[[array]]
+foo = 3
+
 [rendering]
 	#Set this to false to disable the use of shaders for some of the mod's renders. (Requires game restart)
 	shaders = true

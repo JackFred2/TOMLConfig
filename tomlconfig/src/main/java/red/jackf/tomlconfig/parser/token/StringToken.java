@@ -4,7 +4,8 @@ public class StringToken extends Token {
     private final String text;
     private final Type type;
 
-    public StringToken(String text, Type type) {
+    public StringToken(int index, String text, Type type) {
+        super(index);
         this.type = type;
         this.text = text;
     }

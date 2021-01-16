@@ -3,8 +3,8 @@ package red.jackf.tomlconfig.parser.token;
 public class BareStringToken extends Token {
     private final String contents;
 
-    public BareStringToken(String contents) {
-        super();
+    public BareStringToken(int index, String contents) {
+        super(index);
         this.contents = contents;
     }
 

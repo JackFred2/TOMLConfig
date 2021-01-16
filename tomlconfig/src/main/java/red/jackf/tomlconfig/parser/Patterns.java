@@ -11,8 +11,16 @@ public abstract class Patterns {
     public static final Pattern ASSIGNMENT = Pattern.compile("^=");
     public static final Pattern KEY_JOIN = Pattern.compile("^\\.");
 
-    public static final Pattern TABLE_BEGIN = Pattern.compile("^\\[");
-    public static final Pattern TABLE_END = Pattern.compile("^]");
+    public static final Pattern DOUBLE_LEFT_BRACKET = Pattern.compile("^\\[\\[");
+    public static final Pattern DOUBLE_RIGHT_BRACKET = Pattern.compile("^]]");
+
+    public static final Pattern LEFT_BRACKET = Pattern.compile("^\\[");
+    public static final Pattern RIGHT_BRACKET = Pattern.compile("^]");
+
+    public static final Pattern SEPARATOR = Pattern.compile("^,");
+
+    public static final Pattern INLINE_TABLE_BEGIN = Pattern.compile("^\\{");
+    public static final Pattern INLINE_TABLE_END = Pattern.compile("^}");
 
     public static final Pattern BOOLEAN = Pattern.compile("^(true|false)");
 
