@@ -1,4 +1,4 @@
-package red.jackf.tomlconfig.annotation;
+package red.jackf.tomlconfig.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
