@@ -1,11 +1,11 @@
 package red.jackf.tomlconfig.parser;
 
-import org.apache.commons.math3.util.Pair;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.token.*;
 import red.jackf.tomlconfig.parser.token.processing.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import static red.jackf.tomlconfig.parser.Patterns.*;
@@ -16,7 +16,7 @@ public class TOMLTokenizer {
     // Get initial tokens from the string
     public List<Token> tokenize(String contents) throws TokenizationException {
         StringReader reader = new StringReader(contents);
-        List<Token> rawTokens = readTokens(contents, reader);
+        List<Token> rawTokens = readTokens(reader);
         List<Token> tokens = preprocess(rawTokens, reader);
         return tokens;
     }
@@ -24,8 +24,6 @@ public class TOMLTokenizer {
     // Process out the ambiguous tokens
     private List<Token> preprocess(List<Token> tokens, StringReader reader) throws TokenizationException {
         List<Token> processed = new ArrayList<>();
-        boolean tableName = false;
-        boolean tableArrayName = false;
         int arrayCount = 0;
 
         Token last = null;
@@ -38,7 +36,7 @@ public class TOMLTokenizer {
 
             if (toAdd instanceof LeftBracketToken) { // [
                 if (processed.size() > 0) {
-                    if (last instanceof AssignmentToken || last instanceof SeparatorToken || last instanceof ArrayBeginToken) {
+                    if (last instanceof AssignmentToken || last instanceof SeparatorToken || last instanceof ArrayBeginToken || arrayCount > 0) {
                         toAdd = new ArrayBeginToken(toAdd.getIndex());
                         arrayCount++;
                     } else {
@@ -48,7 +46,7 @@ public class TOMLTokenizer {
                     toAdd = new TableBeginToken(toAdd.getIndex());
                 }
             } else if (toAdd instanceof RightBracketToken) { // ]
-                if (tableName) {
+                if (arrayCount == 0) {
                     toAdd = new TableEndToken(toAdd.getIndex());
                 } else {
                     toAdd = new ArrayEndToken(toAdd.getIndex());
@@ -56,7 +54,7 @@ public class TOMLTokenizer {
                     if (arrayCount < 0) throw new TokenizationException("Unmatched end of array at " + reader.getLineAndChar(token.getIndex()));
                 }
             } else if (toAdd instanceof DoubleLeftBracketToken) { // [[
-                if (last instanceof EndOfLineToken) {
+                if (last instanceof EndOfLineToken && arrayCount == 0) {
                     toAdd = new TableArrayBeginToken(toAdd.getIndex());
                 } else {
                     processed.add(new ArrayBeginToken(toAdd.getIndex()));
@@ -64,7 +62,7 @@ public class TOMLTokenizer {
                     arrayCount += 2;
                 }
             } else if (toAdd instanceof DoubleRightBracketToken) { // ]]
-                if (tableArrayName) {
+                if (arrayCount == 0) {
                     toAdd = new TableArrayEndToken(toAdd.getIndex());
                 } else {
                     processed.add(new ArrayEndToken(toAdd.getIndex()));
@@ -87,20 +85,6 @@ public class TOMLTokenizer {
 
             processed.add(toAdd);
 
-            if (tableName) {
-                if (last instanceof TableBeginToken || last instanceof KeyJoinToken) tableName = toAdd instanceof BareStringToken || toAdd instanceof StringToken;
-                else tableName = toAdd instanceof KeyJoinToken;
-            } else {
-                if (toAdd instanceof TableBeginToken) tableName = true;
-            }
-
-            if (tableArrayName) {
-                if (last instanceof TableArrayBeginToken || last instanceof KeyJoinToken) tableArrayName = toAdd instanceof BareStringToken || toAdd instanceof StringToken;
-                else tableArrayName = toAdd instanceof KeyJoinToken;
-            } else {
-                if (toAdd instanceof TableArrayBeginToken) tableArrayName = true;
-            }
-
             last = toAdd;
         }
 
@@ -110,7 +94,7 @@ public class TOMLTokenizer {
     }
 
     // Generate tokens from the file until EOF
-    public List<Token> readTokens(String contents, StringReader reader) {
+    public List<Token> readTokens(StringReader reader) throws TokenizationException {
         List<Token> tokens = new ArrayList<>();
         while (!reader.ended()) {
             Token token = getNextToken(reader);
@@ -120,7 +104,7 @@ public class TOMLTokenizer {
     }
 
     // Get the next individual token
-    private Token getNextToken(StringReader contents) {
+    private Token getNextToken(StringReader contents) throws TokenizationException {
         String toRead = contents.getRemaining();
         Matcher matcher;
         Token token;
@@ -193,7 +177,7 @@ public class TOMLTokenizer {
             token = new StringToken(contents.index, matcher.group("contents"), StringToken.Type.LITERAL);
 
         } else {
-            throw new IllegalArgumentException("Unknown token at " + contents.getLineAndChar(contents.index) + ": '" + toRead.substring(0, 15) + "'");
+            throw new TokenizationException("Unknown token at " + contents.getLineAndChar(contents.index) + ": '" + toRead.substring(0, 15) + "'");
         }
         contents.addIndex(matcher.end());
         return token;
@@ -221,7 +205,7 @@ public class TOMLTokenizer {
 
         public String getLineAndChar(int pos) {
             if (pos == 0) return "L1 C1";
-            String trimmed = source.substring(0, pos + 1);
+            String trimmed = source.substring(0, pos);
             long line = trimmed.chars().filter(c -> c == '\n').count() + 1;
             long charPos = trimmed.replaceAll("^(?:.|\\n)*\\n", "").length();
             return "L" + line + " C" + charPos;
