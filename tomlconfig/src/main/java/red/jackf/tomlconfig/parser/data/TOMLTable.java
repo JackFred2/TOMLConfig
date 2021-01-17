@@ -10,10 +10,7 @@ public class TOMLTable implements TOMLValue {
     private Sealed sealed = Sealed.NO;
     private final Map<String, TOMLValue> data = new HashMap<>();
 
-    public TOMLTable() {
-    }
-
-    private void addData(String key, TOMLValue value) throws ParsingException {
+    protected void addData(String key, TOMLValue value) throws ParsingException {
         if (data.containsKey(key)) throw new ParsingException("Key " + key + " already exists in TOMLTable object.");
         else data.put(key, value);
     }
@@ -43,7 +40,7 @@ public class TOMLTable implements TOMLValue {
     }
 
     @Nullable
-    private TOMLValue getData(String key) {
+    protected TOMLValue getData(String key) {
         return data.get(key);
     }
 

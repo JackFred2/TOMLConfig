@@ -1,1 +1,19 @@
-a = {  b = 2 , c = [{br = "yg", 12 = 13}, {}]}
+[[fruits]]
+name = "apple"
+
+[fruits.physical]  # subtable
+color = "red"
+shape = "round"
+
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"
+
+[[fruits.varieties]]
+name = "granny smith"
+
+
+[[fruits]]
+name = "banana"
+
+[[fruits.varieties]]
+name = "plantain"

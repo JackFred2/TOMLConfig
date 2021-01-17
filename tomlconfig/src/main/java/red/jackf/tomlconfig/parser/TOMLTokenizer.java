@@ -5,6 +5,7 @@ import red.jackf.tomlconfig.parser.token.*;
 import red.jackf.tomlconfig.parser.token.processing.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -17,8 +18,7 @@ public class TOMLTokenizer {
     public List<Token> tokenize(String contents) throws TokenizationException {
         StringReader reader = new StringReader(contents);
         List<Token> rawTokens = readTokens(reader);
-        List<Token> tokens = preprocess(rawTokens, reader);
-        return tokens;
+        return preprocess(rawTokens, reader);
     }
 
     // Process out the ambiguous tokens
@@ -26,8 +26,10 @@ public class TOMLTokenizer {
         List<Token> processed = new ArrayList<>();
         int arrayCount = 0;
 
-        Token last = null;
+        // fixes some issues related to the start of the file
+        Token last = new EndOfLineToken(-1);
 
+        // Remove ambiguous
         for (int i = 0; i < tokens.size(); i++) {
             Token token = tokens.get(i);
             Token next = i < tokens.size() - 1 ? tokens.get(i + 1) : null;
@@ -89,6 +91,9 @@ public class TOMLTokenizer {
         }
 
         if (arrayCount > 0) throw new TokenizationException("Mismatched array tokens");
+
+        // remove comments
+        processed.removeIf(token -> token instanceof CommentToken);
 
         return processed;
     }

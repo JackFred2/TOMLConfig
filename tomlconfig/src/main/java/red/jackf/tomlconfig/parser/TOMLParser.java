@@ -27,7 +27,7 @@ public class TOMLParser {
         boolean expectingSeparator = false;
         while (iter.hasNext()) {
             Token token = iter.next();
-            if (token instanceof EndOfLineToken || token instanceof CommentToken) continue;
+            if (token instanceof EndOfLineToken) continue;
             if (token instanceof ArrayEndToken) return array;
             if (expectingSeparator) {
                 if (token instanceof SeparatorToken) {
@@ -131,6 +131,7 @@ public class TOMLParser {
     }
 
     public TOMLTable toTable(List<Token> tokens) throws ParsingException {
+        System.out.println(tokens);
         TOMLTable root = new TOMLTable();
         TOMLTable current = root;
         State state = State.BASE;
@@ -164,13 +165,16 @@ public class TOMLParser {
                     throw new ParsingException("Attempting to treat " + table.getClass().getSimpleName() + " as table.");
                 }
             } else if (token instanceof KeyJoinToken) {
-                assertState(state, State.KEY_EXPECTING_JOINER_OR_ASSIGN, State.TABLE_NAMING_EXPECTING_END_OR_JOINER);
+                assertState(state, State.KEY_EXPECTING_JOINER_OR_ASSIGN, State.TABLE_NAMING_EXPECTING_END_OR_JOINER, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
                 switch (state) {
                     case KEY_EXPECTING_JOINER_OR_ASSIGN:
                         state = State.KEY_JOINER_EXPECTING_STRING;
                         break;
                     case TABLE_NAMING_EXPECTING_END_OR_JOINER:
                         state = State.TABLE_NAMING_EXPECTING_STRING;
+                        break;
+                    case TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER:
+                        state = State.TABLE_ARRAY_NAMING_EXPECTING_STRING;
                         break;
                 }
             } else if (token instanceof AssignmentToken) {
@@ -186,9 +190,29 @@ public class TOMLParser {
                 current.addData(TOMLKey.of(nameList), getInlineTable(iter));
                 state = State.BASE;
                 nameList.clear();
+            } else if (token instanceof TableArrayBeginToken) {
+                assertState(state, State.BASE);
+                state = State.TABLE_ARRAY_NAMING_EXPECTING_STRING;
+            } else if (token instanceof TableArrayEndToken) {
+                assertState(state, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
+                state = State.BASE_END_OF_LINE;
+
+                TOMLKey tableArrayName = TOMLKey.of(nameList);
+                nameList.clear();
+                current.seal(TOMLTable.Sealed.PARTIAL);
+                TOMLValue existing = root.getData(tableArrayName);
+                if (existing instanceof TOMLTableArray) {
+                    current = (TOMLTable) existing;
+                } else if (existing == null) {
+                    current = new TOMLTableArray();
+                    root.addData(tableArrayName, current);
+                } else {
+                    throw new ParsingException("Attempting to treat " + existing.getClass().getSimpleName() + " as table array.");
+                }
+                ((TOMLTableArray) current).increaseIndex();
 
             } else if (token instanceof BareStringToken) {
-                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING);
+                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
                 switch (state) {
                     case BASE:
                     case KEY_JOINER_EXPECTING_STRING:
@@ -198,10 +222,14 @@ public class TOMLParser {
                     case TABLE_NAMING_EXPECTING_STRING:
                         nameList.add(token);
                         state = State.TABLE_NAMING_EXPECTING_END_OR_JOINER;
+                        break;
+                    case TABLE_ARRAY_NAMING_EXPECTING_STRING:
+                        nameList.add(token);
+                        state = State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER;
                         break;
                 }
             } else if (token instanceof StringToken) {
-                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.ASSIGNING_VALUE);
+                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.ASSIGNING_VALUE, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
                 switch (state) {
                     case BASE:
                     case KEY_JOINER_EXPECTING_STRING:
@@ -211,6 +239,10 @@ public class TOMLParser {
                     case TABLE_NAMING_EXPECTING_STRING:
                         nameList.add(token);
                         state = State.TABLE_NAMING_EXPECTING_END_OR_JOINER;
+                        break;
+                    case TABLE_ARRAY_NAMING_EXPECTING_STRING:
+                        nameList.add(token);
+                        state = State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER;
                         break;
                     case ASSIGNING_VALUE:
                         current.addData(TOMLKey.of(nameList), new TOMLString(((StringToken) token).getText()));
@@ -259,6 +291,9 @@ public class TOMLParser {
         KEY_EXPECTING_JOINER_OR_ASSIGN,
         KEY_JOINER_EXPECTING_STRING,
         TABLE_NAMING_EXPECTING_END_OR_JOINER,
-        TABLE_NAMING_EXPECTING_STRING
+        TABLE_NAMING_EXPECTING_STRING,
+        TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER,
+        TABLE_ARRAY_NAMING_EXPECTING_STRING,
+
     }
 }
