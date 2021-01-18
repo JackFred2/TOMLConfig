@@ -16,6 +16,6 @@ public class TOMLString implements TOMLValue {
 
     @Override
     public String toString() {
-        return "TOMLString<" + value + '>';
+        return "\"" + value + "\"";
     }
 }

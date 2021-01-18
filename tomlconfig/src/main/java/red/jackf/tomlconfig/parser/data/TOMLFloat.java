@@ -13,6 +13,6 @@ public class TOMLFloat implements TOMLValue {
 
     @Override
     public String toString() {
-        return "TOMLFloat<" + value + ">";
+        return value.toString();
     }
 }

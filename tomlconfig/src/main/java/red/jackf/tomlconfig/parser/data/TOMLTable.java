@@ -4,14 +4,16 @@ import org.jetbrains.annotations.Nullable;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class TOMLTable implements TOMLValue {
     private Sealed sealed = Sealed.NO;
     private final Map<String, TOMLValue> data = new HashMap<>();
 
     protected void addData(String key, TOMLValue value) throws ParsingException {
-        if (data.containsKey(key)) throw new ParsingException("Key " + key + " already exists in TOMLTable object.");
+        if (data.containsKey(key)) throw new ParsingException("Key '" + key + "' already exists in TOMLTable object.");
         else data.put(key, value);
     }
 
@@ -67,6 +69,17 @@ public class TOMLTable implements TOMLValue {
         throw new IllegalStateException();
     }
 
+    @Override
+    public void changeTableArraysToArrays() throws ParsingException {
+        Set<String> keys = new HashSet<>(this.data.keySet());
+        for (String key : keys) {
+            if (this.data.get(key) instanceof TOMLTableArray) {
+                this.data.put(key, ((TOMLTableArray) this.data.get(key)).toArray());
+            }
+            this.data.get(key).changeTableArraysToArrays();
+        }
+    }
+
     public void seal(Sealed newVal) {
         this.sealed = newVal;
     }
@@ -79,6 +92,6 @@ public class TOMLTable implements TOMLValue {
 
     @Override
     public String toString() {
-        return "TOMLTable<sealed=" + sealed + "," + data + ">";
+        return data.toString();
     }
 }

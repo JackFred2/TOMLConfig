@@ -4,16 +4,14 @@ import org.jetbrains.annotations.Nullable;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * An array of tables, using the [[tableArrayName]] syntax.
+ * This does not appear in the final TOMLTable, and should be migrated to a {@link TOMLArray} during parsing.
+ */
 public class TOMLTableArray extends TOMLTable {
     private final List<TOMLTable> data = new ArrayList<>();
-
-    public TOMLTableArray() {
-
-    }
 
     public void increaseIndex() {
         data.add(new TOMLTable());
@@ -30,12 +28,23 @@ public class TOMLTableArray extends TOMLTable {
     }
 
     @Override
-    public void seal(Sealed newVal) {
-        return;
+    public void seal(Sealed newVal) {}
+
+    public TOMLArray toArray() throws ParsingException {
+        TOMLArray array = new TOMLArray();
+        for (TOMLTable datum : this.data) {
+            array.addData(datum);
+        }
+        return array;
+    }
+
+    @Override
+    public void changeTableArraysToArrays() throws ParsingException {
+        throw new ParsingException("changeTableArrayToArray called on TableArray itself!");
     }
 
     @Override
     public String toString() {
-        return "TOMLTableArray<" + data + '>';
+        return "{}" + data.toString();
     }
 }

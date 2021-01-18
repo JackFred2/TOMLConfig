@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class TOMLTokenizerTest {
     @Test
     public void testFile() throws TokenizationException, ParsingException {
-        String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile0.toml"))).lines().collect(Collectors.joining("\n"));
+        String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile2.toml"))).lines().collect(Collectors.joining("\n"));
         TOMLTable table = new TOMLParser().parse(file);
         System.out.println(table);
     }

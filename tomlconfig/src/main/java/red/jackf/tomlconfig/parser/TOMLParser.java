@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class TOMLParser {
-    public static final TOMLParser INSTANCE = new TOMLParser();
     private final TOMLTokenizer TOKENIZER = new TOMLTokenizer();
 
     public TOMLParser() {
@@ -19,7 +18,13 @@ public class TOMLParser {
 
     public TOMLTable parse(String contents) throws TokenizationException, ParsingException {
         List<Token> tokens = TOKENIZER.tokenize(contents);
-        return toTable(tokens);
+        TOMLTable root = toTable(tokens);
+        root.changeTableArraysToArrays();
+        return root;
+    }
+
+    private void migrateTableArrayToArray(TOMLTable table) {
+
     }
 
     private TOMLArray getArray(ListIterator<Token> iter) throws ParsingException {
@@ -131,7 +136,6 @@ public class TOMLParser {
     }
 
     public TOMLTable toTable(List<Token> tokens) throws ParsingException {
-        System.out.println(tokens);
         TOMLTable root = new TOMLTable();
         TOMLTable current = root;
         State state = State.BASE;
@@ -207,7 +211,7 @@ public class TOMLParser {
                     current = new TOMLTableArray();
                     root.addData(tableArrayName, current);
                 } else {
-                    throw new ParsingException("Attempting to treat " + existing.getClass().getSimpleName() + " as table array.");
+                    throw new ParsingException("Attempting to treat " + existing.getClass().getSimpleName() + " as TableArray.");
                 }
                 ((TOMLTableArray) current).increaseIndex();
 

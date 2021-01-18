@@ -13,6 +13,6 @@ public class TOMLInteger implements TOMLValue {
 
     @Override
     public String toString() {
-        return "TOMLInteger<" + value + ">";
+        return value.toString();
     }
 }

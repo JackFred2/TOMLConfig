@@ -13,6 +13,6 @@ public class TOMLBoolean implements TOMLValue {
 
     @Override
     public String toString() {
-        return "TOMLBoolean<" + value + '>';
+        return value.toString();
     }
 }

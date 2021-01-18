@@ -48,6 +48,6 @@ public class TOMLKey {
 
     @Override
     public String toString() {
-        return "TOMLKey<" + String.join(".", path) + '>';
+        return "Key<" + String.join(".", path) + '>';
     }
 }
