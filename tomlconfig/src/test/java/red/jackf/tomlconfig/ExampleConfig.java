@@ -38,6 +38,19 @@ public class ExampleConfig implements Config {
                 ", posts=" + posts +
                 '}';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            User user = (User) o;
+            return userId.equals(user.userId) && username.equals(user.username) && posts.equals(user.posts);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, username, posts);
+        }
     }
 
     @Override
@@ -47,5 +60,18 @@ public class ExampleConfig implements Config {
             ", master=" + master +
             ", hash=" + hash +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExampleConfig that = (ExampleConfig) o;
+        return hash == that.hash && users.equals(that.users) && master.equals(that.master);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(users, master, hash);
     }
 }

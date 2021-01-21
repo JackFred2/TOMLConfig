@@ -148,25 +148,35 @@ public class ClassPopulator {
         }
     }
 
-    public TOMLValue fromObject(Object rootObject) throws ParsingException, IllegalAccessException {
-        TOMLTable root = new TOMLTable();
-        Field[] fields = rootObject.getClass().getFields();
-        for (Field field : fields) {
-            int modifiers = field.getModifiers();
-            if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
-                String name = field.getName();
-                if (field.get(rootObject) != null) { // null fields will not be added.
-                    TOMLValue fieldValue = createTOMLValue(field.get(rootObject));
-                    root.addData(new TOMLKey(name), fieldValue);
+    public TOMLValue fromObject(Object rootObject) throws ParsingException, ReflectiveOperationException {
+        if (hasMapping(rootObject.getClass())) {
+            return createTOMLValue(rootObject);
+        } else {
+            TOMLTable root = new TOMLTable();
+            Field[] fields = rootObject.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                boolean modifiedAccessible = false;
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                    modifiedAccessible = true;
                 }
+                int modifiers = field.getModifiers();
+                if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    String name = field.getName();
+                    if (field.get(rootObject) != null) { // null fields will not be added.
+                        TOMLValue fieldValue = fromObject(field.get(rootObject));
+                        root.addData(new TOMLKey(name), fieldValue);
+                    }
+                }
+                if (modifiedAccessible) field.setAccessible(false);
             }
-        }
 
-        return root;
+            return root;
+        }
     }
 
     /**
-     *  Converts a single TOMLValue object and Type to an Object.
+     *  Converts a single TOMLValue and Type to an Object. Assumes that a mapping exists.
      *  */
     public Object createObject(TOMLValue data, Type genericType) throws ParsingException {
         Mapping<?> mapping;
@@ -177,6 +187,9 @@ public class ClassPopulator {
         return mapping.toObject(this, data, genericType);
     }
 
+    /**
+     * Creates a TOMLValue from an object. Assumes that a mapping exists.
+     */
     public TOMLValue createTOMLValue(Object object) throws ParsingException {
         Mapping<?> mapping = getMapping(object.getClass());
         if (mapping == null) {

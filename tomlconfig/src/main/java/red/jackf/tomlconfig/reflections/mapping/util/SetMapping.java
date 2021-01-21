@@ -21,7 +21,7 @@ public class SetMapping implements Mapping<Set<?>> {
         for (Object object : set) {
             try {
                 array.addData(populator.fromObject(object));
-            } catch (IllegalAccessException e) {
+            } catch (ReflectiveOperationException e) {
                 e.printStackTrace();
             }
         }

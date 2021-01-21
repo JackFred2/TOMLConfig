@@ -20,7 +20,7 @@ public class ListMapping implements Mapping<List<?>> {
         for (Object object : list) {
             try {
                 array.addData(populator.fromObject(object));
-            } catch (IllegalAccessException e) {
+            } catch (ReflectiveOperationException e) {
                 e.printStackTrace();
             }
         }
