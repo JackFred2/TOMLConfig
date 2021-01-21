@@ -17,8 +17,8 @@ public class TOMLConfigTest {
 
     @Test
     public void testConfig() throws TokenizationException, ParsingException, ReflectiveOperationException {
-        String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile3.toml"))).lines().collect(Collectors.joining("\n"));
-        ExampleConfig config = ClassPopulator.INSTANCE.toObject(ExampleConfig.class, new TOMLParser().parse(file));
+        String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile4.toml"))).lines().collect(Collectors.joining("\n"));
+        ExampleConfig config = (ExampleConfig) ClassPopulator.INSTANCE.toObject(ExampleConfig.class, new TOMLParser().parse(file));
         System.out.println(config);
         System.out.println("\n\n");
         //System.out.println(ClassPopulator.INSTANCE.fromObject(new ExampleConfig()));

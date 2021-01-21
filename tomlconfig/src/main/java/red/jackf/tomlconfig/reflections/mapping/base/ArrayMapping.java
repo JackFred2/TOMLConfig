@@ -12,22 +12,22 @@ import java.lang.reflect.Type;
 public class ArrayMapping implements Mapping<Object> {
 
     @Override
-    public TOMLValue fromObject(Object object) throws ParsingException {
+    public TOMLValue fromObject(ClassPopulator populator, Object object) throws ParsingException {
         TOMLArray array = new TOMLArray();
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
-            array.addData(ClassPopulator.INSTANCE.createTOMLValue(Array.get(object, i)));
+            array.addData(populator.createTOMLValue(Array.get(object, i)));
         }
         return array;
     }
 
     @Override
-    public Object toObject(TOMLValue value, Type typeInfo) throws ParsingException {
+    public Object toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
         Class<?> clazz = ((Class<?>) typeInfo);
         TOMLArray array = ((TOMLArray) value);
         Object toReturn = Array.newInstance(clazz.getComponentType(), array.size());
         for (int i = 0; i < array.size(); i++) {
-            Array.set(toReturn, i, ClassPopulator.INSTANCE.createObject(array.getData(i), clazz.getComponentType(), false));
+            Array.set(toReturn, i, populator.createObject(array.getData(i), clazz.getComponentType()));
         }
         return toReturn;
     }

@@ -13,5 +13,14 @@ values = [
     ]
 ]
 
+obj = ["bruh"]
+
+flags = [
+    false, false,
+    false, false,
+    false, true
+]
+matchers = [4, 5, 12, 435, 54]
+
 [client]
 setting = 6

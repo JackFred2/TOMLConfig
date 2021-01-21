@@ -1,50 +1,41 @@
 package red.jackf.tomlconfig;
 
 import red.jackf.tomlconfig.annotations.Config;
+import red.jackf.tomlconfig.annotations.Transitive;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class ExampleConfig implements Config {
-
-    @FieldData(setter = "funni")
-    public Boolean enabled = true;
-
-    public void funni(Boolean enabled) {
-        System.out.println("Set enabled to " + enabled);
-        this.enabled = enabled;
+    public List<User> users = new ArrayList<>();
+    {
+        users.add(new User(34L, "br", 3, 3, 4));
+        users.add(new User(12L, "uh", 1, 1200, -32));
     }
 
-    public int[][][] values = {
-        {
-            {
-                1
-            },
-            {
-                2, 3
-            }
-        },
-        {
-            {
-                4, 5, 6, 7
-            }
-        },
-        {
-            {
-                0
-            }
-        }
-    };
+    public User master = new User(0L, "0");
+
+    long hash = 348497234L;
 
     @Transitive
-    public Client client = new Client();
+    public static class User {
+        private Long userId;
+        private String username;
+        private List<Integer> posts;
 
-    public static class Client {
-        int setting = 4;
+        public User() {}
+
+        public User(Long userId, String username, Integer... posts) {
+            this.userId = userId;
+            this.username = username;
+            this.posts = Arrays.asList(posts);
+        }
 
         @Override
         public String toString() {
-            return "Client{" +
-                "setting=" + setting +
+            return "User{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", posts=" + posts +
                 '}';
         }
     }
@@ -52,9 +43,9 @@ public class ExampleConfig implements Config {
     @Override
     public String toString() {
         return "ExampleConfig{" +
-            "enabled=" + enabled +
-            ", values=" + Arrays.toString(values) +
-            ", client=" + client +
+            "users=" + users +
+            ", master=" + master +
+            ", hash=" + hash +
             '}';
     }
 }

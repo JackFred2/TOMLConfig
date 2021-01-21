@@ -1,17 +1,21 @@
 package red.jackf.tomlconfig.reflections;
 
 import red.jackf.tomlconfig.annotations.Config;
+import red.jackf.tomlconfig.annotations.Transitive;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.parser.data.TOMLKey;
 import red.jackf.tomlconfig.parser.data.TOMLTable;
 import red.jackf.tomlconfig.parser.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import red.jackf.tomlconfig.reflections.mapping.base.*;
+import red.jackf.tomlconfig.reflections.mapping.util.ListMapping;
+import red.jackf.tomlconfig.reflections.mapping.util.SetMapping;
 
 import java.lang.reflect.*;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is responsible for taking an {@link Config} object and populating the
@@ -20,7 +24,7 @@ import java.util.Map;
 public class ClassPopulator {
     public static final ClassPopulator INSTANCE = new ClassPopulator();
 
-    private final Map<Class<?>, Mapping<?>> mappings = new HashMap<>();
+    private final Map<Type, Mapping<?>> mappings = new HashMap<>();
 
     private static final Mapping<Object> ARRAY_MAPPING = new ArrayMapping();
 
@@ -42,79 +46,109 @@ public class ClassPopulator {
         register(short.class, new ShortMapping());
         register(Short.class, new ShortMapping());
         register(String.class, new StringMapping());
+
+        register(List.class, new ListMapping());
+        register(Set.class, new SetMapping());
     }
 
-    public <T> void register(Class<T> clazz, Mapping<T> mapping) {
+    public void register(Class<?> clazz, Mapping<?> mapping) {
         mappings.put(clazz, mapping);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Mapping<T> getMapping(Class<T> clazz) {
-        if (clazz.isArray()) return (Mapping<T>) ARRAY_MAPPING;
-        return (Mapping<T>) mappings.get(clazz);
+    public Boolean hasMapping(Type type) {
+        return getMapping(type) != null;
+    }
+
+    public Mapping<?> getMapping(Type type) {
+        Class<?> clazz;
+        if (type instanceof Class<?>) clazz = (Class<?>) type;
+        else if (type instanceof ParameterizedType) clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+        else throw new UnsupportedOperationException("Unsupported type " + type);
+        if (clazz.isArray()) return ARRAY_MAPPING;
+        for (Type key : mappings.keySet()) {
+            if (key.equals(clazz)) {
+                return mappings.get(key);
+            }
+        }
+
+        // interfaces
+        for (Type key : mappings.keySet()) {
+            if (key instanceof Class<?>)
+                if (((Class<?>) key).isAssignableFrom(clazz)) {
+                    return mappings.get(key);
+                }
+        }
+        return null;
     }
 
     /**
      * Convert a whole TOMLTable to an object based off a class definition.
      */
-    public <C> C toObject(Class<C> clazz, TOMLTable root) throws ReflectiveOperationException, ParsingException {
-        C object = instantiate(clazz);
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            boolean modifiedAccessible = false;
-            if (!field.isAccessible()) {
-                field.setAccessible(true);
-                modifiedAccessible = true;
-            }
-            int modifiers = field.getModifiers();
-            if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
-                String name = field.getName();
-                TOMLValue data = root.getData(new TOMLKey(name));
-                if (data != null) { // non-existing fields will be left at default.
-                    Object fieldObject = createObject(data, field.getGenericType(), true);
-                    if (fieldObject == null) {
-                        if (field.isAnnotationPresent(Config.Transitive.class)) {
-                            fieldObject = toObject(field.getType(), (TOMLTable) data);
+    public Object toObject(Type type, TOMLValue value) throws ReflectiveOperationException, ParsingException {
+        if (hasMapping(type)) {
+            return createObject(value, type);
+        } else {
+            TOMLTable root = (TOMLTable) value;
+            Class<?> clazz;
+            if (type instanceof Class<?>) clazz = (Class<?>) type;
+            else if (type instanceof ParameterizedType) clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+            else throw new UnsupportedOperationException("Unsupported type " + type);
+            Object object = instantiate(clazz);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                boolean modifiedAccessible = false;
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                    modifiedAccessible = true;
+                }
+                int modifiers = field.getModifiers();
+                if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    String name = field.getName();
+                    TOMLValue data = root.getData(new TOMLKey(name));
+                    if (data != null) { // non-existing fields will be left at default.
+                        Object fieldObject;
+                        if (field.getType().isAnnotationPresent(Transitive.class)) {
+                            fieldObject = toObject(field.getType(), data);
                         } else {
-                            throw new ParsingException("No mapping registered for type " + clazz);
+                            fieldObject = createObject(data, field.getGenericType());
                         }
-                    }
 
-                    Config.FieldData fieldData = field.getAnnotation(Config.FieldData.class);
+                        Config.FieldData fieldData = field.getAnnotation(Config.FieldData.class);
 
-                    // try and find a setter for the field.
-                    if (fieldData != null && !fieldData.setter().equals("")) {
+                        // try and find a setter for the field.
                         boolean set = false;
-                        for (Method method : clazz.getMethods()) {
-                            if (Modifier.isPublic(method.getModifiers()) && method.getName().equals(fieldData.setter()) && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
-                                method.invoke(object, fieldObject);
-                                set = true;
-                                break;
+                        if (fieldData != null && !fieldData.setter().equals("")) {
+                            for (Method method : clazz.getMethods()) {
+                                if (Modifier.isPublic(method.getModifiers()) && method.getName().equals(fieldData.setter()) && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
+                                    method.invoke(object, fieldObject);
+                                    set = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!set) throw new ParsingException("Could not find setter method matching @Config.FieldData name of " + fieldData.setter());
-                    } else {
-                        boolean set = false;
-                        for (Method method : clazz.getMethods()) {
-                            if (Modifier.isPublic(method.getModifiers()) && method.getName().toLowerCase().equals("set" + name.toLowerCase()) && method.getReturnType() == Void.TYPE && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
-                                method.invoke(object, fieldObject);
-                                set = true;
+                            if (!set)
+                                throw new ParsingException("Could not find setter method matching @Config.FieldData name of " + fieldData.setter());
+                        } else {
+                            for (Method method : clazz.getMethods()) {
+                                if (Modifier.isPublic(method.getModifiers()) && method.getName().toLowerCase().equals("set" + name.toLowerCase()) && method.getReturnType() == Void.TYPE && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
+                                    method.invoke(object, fieldObject);
+                                    set = true;
+                                }
                             }
+                            // no setter, set directly
+                            if (!set) field.set(object, fieldObject);
                         }
-                        // no setter, set directly
-                        if (!set) field.set(object, fieldObject);
                     }
                 }
+                if (modifiedAccessible) {
+                    field.setAccessible(false);
+                }
             }
-            if (modifiedAccessible) {
-                field.setAccessible(false);
-            }
+
+            return object;
         }
-        
-        return object;
     }
 
-    public TOMLValue fromObject(Object rootObject) throws ReflectiveOperationException, ParsingException {
+    public TOMLValue fromObject(Object rootObject) throws ParsingException, IllegalAccessException {
         TOMLTable root = new TOMLTable();
         Field[] fields = rootObject.getClass().getFields();
         for (Field field : fields) {
@@ -134,31 +168,21 @@ public class ClassPopulator {
     /**
      *  Converts a single TOMLValue object and Type to an Object.
      *  */
-    public Object createObject(TOMLValue data, Type genericType, Boolean root) throws ParsingException {
+    public Object createObject(TOMLValue data, Type genericType) throws ParsingException {
         Mapping<?> mapping;
-        if (genericType instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) genericType;
-            mapping = getMapping(clazz);
-            if (mapping == null) {
-                if (root) {
-                    return null;
-                } else {
-                    throw new ParsingException("No mapping registered for type " + clazz);
-                }
-            }
-        } else {
-            throw new ParsingException("Unsupported: " + genericType.getClass().getSimpleName());
+        mapping = getMapping(genericType);
+        if (mapping == null) {
+            throw new ParsingException("No mapping registered for type " + genericType);
         }
-        return mapping.toObject(data, genericType);
+        return mapping.toObject(this, data, genericType);
     }
 
-    public <T> TOMLValue createTOMLValue(T object) throws ParsingException {
-        //noinspection unchecked
-        Mapping<T> mapping = getMapping((Class<T>) object.getClass());
+    public TOMLValue createTOMLValue(Object object) throws ParsingException {
+        Mapping<?> mapping = getMapping(object.getClass());
         if (mapping == null) {
             throw new ParsingException("No mapping registered for type " + object.getClass());
         }
-        return mapping.fromObject(object);
+        return mapping.fromObject(this, object);
     }
 
     private static <C> C instantiate(Class<C> clazz) throws ReflectiveOperationException {

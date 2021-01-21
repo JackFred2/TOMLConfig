@@ -30,14 +30,6 @@ public interface Config {
     }
 
     /**
-     * Marks a field without a loaded mapping to be treated as a sub-config (think partitioning the config into
-     * sub-objects).
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    @interface Transitive {}
-
-    /**
      * Called when a config is successfully deserialized.
      */
     default void onLoad() {}
