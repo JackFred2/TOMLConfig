@@ -27,7 +27,7 @@ public class ArrayMapping implements Mapping<Object> {
         TOMLArray array = ((TOMLArray) value);
         Object toReturn = Array.newInstance(clazz.getComponentType(), array.size());
         for (int i = 0; i < array.size(); i++) {
-            Array.set(toReturn, i, ClassPopulator.INSTANCE.createObject(array.getData(i), clazz.getComponentType()));
+            Array.set(toReturn, i, ClassPopulator.INSTANCE.createObject(array.getData(i), clazz.getComponentType(), false));
         }
         return toReturn;
     }

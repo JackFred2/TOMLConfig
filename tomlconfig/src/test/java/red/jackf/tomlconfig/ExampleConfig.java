@@ -4,9 +4,15 @@ import red.jackf.tomlconfig.annotations.Config;
 
 import java.util.Arrays;
 
-@Config.Data(name = "testConfig")
 public class ExampleConfig implements Config {
+
+    @FieldData(setter = "funni")
     public Boolean enabled = true;
+
+    public void funni(Boolean enabled) {
+        System.out.println("Set enabled to " + enabled);
+        this.enabled = enabled;
+    }
 
     public int[][][] values = {
         {
@@ -29,11 +35,26 @@ public class ExampleConfig implements Config {
         }
     };
 
+    @Transitive
+    public Client client = new Client();
+
+    public static class Client {
+        int setting = 4;
+
+        @Override
+        public String toString() {
+            return "Client{" +
+                "setting=" + setting +
+                '}';
+        }
+    }
+
     @Override
     public String toString() {
         return "ExampleConfig{" +
             "enabled=" + enabled +
-            ", values=" + Arrays.deepToString(values) +
+            ", values=" + Arrays.toString(values) +
+            ", client=" + client +
             '}';
     }
 }

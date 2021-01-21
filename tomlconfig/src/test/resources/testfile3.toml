@@ -12,3 +12,6 @@ values = [
         [0]
     ]
 ]
+
+[client]
+setting = 6

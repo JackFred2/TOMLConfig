@@ -21,6 +21,6 @@ public class TOMLConfigTest {
         ExampleConfig config = ClassPopulator.INSTANCE.toObject(ExampleConfig.class, new TOMLParser().parse(file));
         System.out.println(config);
         System.out.println("\n\n");
-        System.out.println(ClassPopulator.INSTANCE.fromObject(new ExampleConfig()));
+        //System.out.println(ClassPopulator.INSTANCE.fromObject(new ExampleConfig()));
     }
 }
