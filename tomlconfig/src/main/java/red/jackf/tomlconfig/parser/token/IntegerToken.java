@@ -1,16 +1,16 @@
 package red.jackf.tomlconfig.parser.token;
 
 public class IntegerToken extends Token {
-    private final int value;
+    private final Long value;
     private final String raw;
 
-    public IntegerToken(int index, String raw, int radix) {
+    public IntegerToken(Integer index, String raw, Integer radix) {
         super(index);
         this.raw = raw;
-        this.value = Integer.valueOf(raw.replace("_", ""), radix);
+        this.value = Long.valueOf(raw.replace("_", ""), radix);
     }
 
-    public int getValue() {
+    public Long getValue() {
         return value;
     }
 

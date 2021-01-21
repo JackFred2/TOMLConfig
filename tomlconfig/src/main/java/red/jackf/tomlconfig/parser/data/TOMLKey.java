@@ -5,11 +5,16 @@ import red.jackf.tomlconfig.parser.token.StringToken;
 import red.jackf.tomlconfig.parser.token.Token;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class TOMLKey {
     private final List<String> path;
+
+    public TOMLKey(String path) {
+        this(Collections.singletonList(path));
+    }
 
     public TOMLKey(List<String> path) {
         this.path = path;

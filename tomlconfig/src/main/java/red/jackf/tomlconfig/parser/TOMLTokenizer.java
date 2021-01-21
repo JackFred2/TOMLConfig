@@ -2,10 +2,12 @@ package red.jackf.tomlconfig.parser;
 
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.token.*;
-import red.jackf.tomlconfig.parser.token.processing.*;
+import red.jackf.tomlconfig.parser.token.processing.DoubleLeftBracketToken;
+import red.jackf.tomlconfig.parser.token.processing.DoubleRightBracketToken;
+import red.jackf.tomlconfig.parser.token.processing.LeftBracketToken;
+import red.jackf.tomlconfig.parser.token.processing.RightBracketToken;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 

@@ -1,13 +1,13 @@
 package red.jackf.tomlconfig.parser.data;
 
 public class TOMLInteger implements TOMLValue {
-    private final Integer value;
+    private final Long value;
 
-    public TOMLInteger(int value) {
+    public TOMLInteger(Long value) {
         this.value = value;
     }
 
-    public Integer getValue() {
+    public Long getValue() {
         return value;
     }
 

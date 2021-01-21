@@ -4,7 +4,23 @@
 package red.jackf.tomlconfig;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
+import red.jackf.tomlconfig.exceptions.ParsingException;
+import red.jackf.tomlconfig.exceptions.TokenizationException;
+import red.jackf.tomlconfig.parser.TOMLParser;
+import red.jackf.tomlconfig.reflections.ClassPopulator;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 public class TOMLConfigTest {
+
+    @Test
+    public void testConfig() throws TokenizationException, ParsingException, ReflectiveOperationException {
+        String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile3.toml"))).lines().collect(Collectors.joining("\n"));
+        ExampleConfig config = ClassPopulator.INSTANCE.toObject(ExampleConfig.class, new TOMLParser().parse(file));
+        System.out.println(config);
+        System.out.println("\n\n");
+        System.out.println(ClassPopulator.INSTANCE.fromObject(new ExampleConfig()));
+    }
 }
