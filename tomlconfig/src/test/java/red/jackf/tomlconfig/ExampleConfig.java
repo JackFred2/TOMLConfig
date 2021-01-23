@@ -14,6 +14,12 @@ public class ExampleConfig implements Config {
         users.add(new User(12L, "uh", 1, 1200, -32));
     }
 
+    public Map<Integer, String> keys = new HashMap<>();
+    {
+        keys.put(1, "bruh");
+        keys.put(4, "null");
+    }
+
     public User master = new User(0L, "0");
 
     public OffsetDateTime time = OffsetDateTime.now();

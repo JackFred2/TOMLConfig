@@ -7,7 +7,6 @@ import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class LocalTimeMapping implements Mapping<LocalTime> {

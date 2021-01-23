@@ -150,14 +150,14 @@ public class TOMLParser {
         while (iter.hasNext()) {
             Token token = iter.next();
             if (token instanceof EndOfLineToken) {
-                assertState(state, State.BASE, State.BASE_END_OF_LINE);
+                assertState(token.getIndex(), state, State.BASE, State.BASE_END_OF_LINE);
                 state = State.BASE;
 
             } else if (token instanceof TableBeginToken) {
-                assertState(state, State.BASE);
+                assertState(token.getIndex(), state, State.BASE);
                 state = State.TABLE_NAMING_EXPECTING_STRING;
             } else if (token instanceof TableEndToken) {
-                assertState(state, State.TABLE_NAMING_EXPECTING_END_OR_JOINER);
+                assertState(token.getIndex(), state, State.TABLE_NAMING_EXPECTING_END_OR_JOINER);
                 state = State.BASE_END_OF_LINE;
 
                 TOMLKey tableName = TOMLKey.of(nameList);
@@ -173,7 +173,7 @@ public class TOMLParser {
                     throw new ParsingException("Attempting to treat " + table.getClass().getSimpleName() + " as table.");
                 }
             } else if (token instanceof KeyJoinToken) {
-                assertState(state, State.KEY_EXPECTING_JOINER_OR_ASSIGN, State.TABLE_NAMING_EXPECTING_END_OR_JOINER, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
+                assertState(token.getIndex(), state, State.KEY_EXPECTING_JOINER_OR_ASSIGN, State.TABLE_NAMING_EXPECTING_END_OR_JOINER, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
                 switch (state) {
                     case KEY_EXPECTING_JOINER_OR_ASSIGN:
                         state = State.KEY_JOINER_EXPECTING_STRING;
@@ -186,23 +186,23 @@ public class TOMLParser {
                         break;
                 }
             } else if (token instanceof AssignmentToken) {
-                assertState(state, State.KEY_EXPECTING_JOINER_OR_ASSIGN);
+                assertState(token.getIndex(), state, State.KEY_EXPECTING_JOINER_OR_ASSIGN);
                 state = State.ASSIGNING_VALUE;
             } else if (token instanceof ArrayBeginToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), getArray(iter));
                 state = State.BASE;
                 nameList.clear();
             } else if (token instanceof InlineTableBeginToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), getInlineTable(iter));
                 state = State.BASE;
                 nameList.clear();
             } else if (token instanceof TableArrayBeginToken) {
-                assertState(state, State.BASE);
+                assertState(token.getIndex(), state, State.BASE);
                 state = State.TABLE_ARRAY_NAMING_EXPECTING_STRING;
             } else if (token instanceof TableArrayEndToken) {
-                assertState(state, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
+                assertState(token.getIndex(), state, State.TABLE_ARRAY_NAMING_EXPECTING_END_OR_JOINER);
                 state = State.BASE_END_OF_LINE;
 
                 TOMLKey tableArrayName = TOMLKey.of(nameList);
@@ -220,7 +220,7 @@ public class TOMLParser {
                 ((TOMLTableArray) current).increaseIndex();
 
             } else if (token instanceof BareStringToken) {
-                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
+                assertState(token.getIndex(), state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
                 switch (state) {
                     case BASE:
                     case KEY_JOINER_EXPECTING_STRING:
@@ -237,7 +237,7 @@ public class TOMLParser {
                         break;
                 }
             } else if (token instanceof StringToken) {
-                assertState(state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.ASSIGNING_VALUE, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
+                assertState(token.getIndex(), state, State.BASE, State.KEY_JOINER_EXPECTING_STRING, State.TABLE_NAMING_EXPECTING_STRING, State.ASSIGNING_VALUE, State.TABLE_ARRAY_NAMING_EXPECTING_STRING);
                 switch (state) {
                     case BASE:
                     case KEY_JOINER_EXPECTING_STRING:
@@ -261,27 +261,27 @@ public class TOMLParser {
 
                 // just value assignments
             } else if (token instanceof MultilineStringToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLString(((MultilineStringToken) token).getText()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
             } else if (token instanceof IntegerToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLInteger(((IntegerToken) token).getValue()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
             } else if (token instanceof BooleanToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLBoolean(((BooleanToken) token).getValue()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
             } else if (token instanceof FloatToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLFloat(((FloatToken) token).getValue()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
             } else if (token instanceof DateTimeToken) {
-                assertState(state, State.ASSIGNING_VALUE);
+                assertState(token.getIndex(), state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLDateTime(((DateTimeToken) token).getTime()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
@@ -292,9 +292,9 @@ public class TOMLParser {
     }
 
     // Asserts that the given state is one of `expected`.
-    private static void assertState(State current, State... expected) throws ParsingException {
+    private static void assertState(int index, State current, State... expected) throws ParsingException {
         for (State state : expected) if (state == current) return;
-        throw new ParsingException("Expected state to be one of " + Arrays.toString(expected) + ", was " + current);
+        throw new ParsingException("Expected state at index " + index + " to be on of " + Arrays.toString(expected) + ", was " + current);
     }
 
     private enum State {

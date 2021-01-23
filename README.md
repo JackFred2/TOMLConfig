@@ -1,13 +1,11 @@
 # TOMLParser
-No-dependency system for parsing .toml files, with utilities for use as a configuration library.
+No-dependency system for parsing .toml files, with utilities for use as a configuration library. Follows the 
+[TOML Spec](https://toml.io/en/v1.0.0).
 
-## Floats / Doubles
-The project uses the TOML spec's definition of "Float" in it's naming scheme, however  they are effectively Java 
-`double`s and should be treated as such.
+## Dates, Times, and DateTimes
+TOMLConfig supports Offset Date-Times, Local Date-Times, Local Dates, and Local Times, and maps them to java `OffsetDateTime`, `LocalDateTime`, `LocalDate` and `LocalTime` objects from the `java.time` package.
 
-## Integers / Longs
-As above, the project uses the TOML spec's definition of "Integer" in it's naming scheme, however they are effectively 
-Java `long`s and should be treated as such.
+Second fractions are supported up to the nanosecond (9 digits).
 
 ## Feature checklist
 - [x] Basic TOML parsing

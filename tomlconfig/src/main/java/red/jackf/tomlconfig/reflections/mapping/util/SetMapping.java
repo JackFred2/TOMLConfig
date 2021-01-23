@@ -22,7 +22,7 @@ public class SetMapping implements Mapping<Set<?>> {
             try {
                 array.addData(populator.fromObject(object));
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new ParsingException(e);
             }
         }
         return array;
@@ -36,7 +36,7 @@ public class SetMapping implements Mapping<Set<?>> {
             try {
                 set.add(populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new ParsingException(e);
             }
         }
         return set;

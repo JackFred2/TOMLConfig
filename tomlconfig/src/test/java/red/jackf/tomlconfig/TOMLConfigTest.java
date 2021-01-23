@@ -21,7 +21,7 @@ public class TOMLConfigTest {
         //String file = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/testfile4.toml"))).lines().collect(Collectors.joining("\n"));
         ExampleConfig config = new ExampleConfig();
         TOMLTable configTOML = (TOMLTable) ClassPopulator.INSTANCE.fromObject(config);
-        System.out.println(configTOML);
+        System.out.println("TOML: " + configTOML);
         ExampleConfig parsedConfig = (ExampleConfig) ClassPopulator.INSTANCE.toObject(ExampleConfig.class, configTOML);
         assert config != parsedConfig;
         assert config.equals(parsedConfig);

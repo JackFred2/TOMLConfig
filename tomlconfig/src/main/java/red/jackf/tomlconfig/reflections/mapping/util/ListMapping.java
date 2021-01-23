@@ -9,7 +9,6 @@ import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ListMapping implements Mapping<List<?>> {
@@ -21,7 +20,7 @@ public class ListMapping implements Mapping<List<?>> {
             try {
                 array.addData(populator.fromObject(object));
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new ParsingException(e);
             }
         }
         return array;
@@ -35,7 +34,7 @@ public class ListMapping implements Mapping<List<?>> {
             try {
                 list.add(populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new ParsingException(e);
             }
         }
         return list;

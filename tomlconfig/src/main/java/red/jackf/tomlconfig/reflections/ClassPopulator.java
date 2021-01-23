@@ -52,6 +52,7 @@ public class ClassPopulator {
 
         register(List.class, new ListMapping());
         register(Set.class, new SetMapping());
+        register(Map.class, new MapMapping());
         register(LocalTime.class, new LocalTimeMapping());
         register(LocalDate.class, new LocalDateMapping());
         register(LocalDateTime.class, new LocalDateTimeMapping());
