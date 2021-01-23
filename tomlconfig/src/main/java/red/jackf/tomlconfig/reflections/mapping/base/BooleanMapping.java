@@ -1,7 +1,7 @@
 package red.jackf.tomlconfig.reflections.mapping.base;
 
-import red.jackf.tomlconfig.parser.data.TOMLBoolean;
-import red.jackf.tomlconfig.parser.data.TOMLValue;
+import red.jackf.tomlconfig.data.TOMLBoolean;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 

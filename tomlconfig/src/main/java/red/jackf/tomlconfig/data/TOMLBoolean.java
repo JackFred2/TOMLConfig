@@ -1,6 +1,6 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
-public class TOMLBoolean implements TOMLValue {
+public class TOMLBoolean extends TOMLValue {
     private final Boolean value;
 
     public TOMLBoolean(Boolean value) {

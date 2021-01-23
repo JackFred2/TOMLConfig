@@ -1,4 +1,4 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
 import org.jetbrains.annotations.Nullable;
 import red.jackf.tomlconfig.exceptions.ParsingException;
@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class TOMLTable implements TOMLValue {
+public class TOMLTable extends TOMLValue {
     private Sealed sealed = Sealed.NO;
     private final Map<String, TOMLValue> data = new HashMap<>();
 
@@ -39,6 +39,10 @@ public class TOMLTable implements TOMLValue {
                 }
             }
         }
+    }
+
+    public Map<String, TOMLValue> getAllData() {
+        return data;
     }
 
     @Nullable

@@ -1,8 +1,8 @@
 package red.jackf.tomlconfig.reflections.mapping.util;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
-import red.jackf.tomlconfig.parser.data.TOMLArray;
-import red.jackf.tomlconfig.parser.data.TOMLValue;
+import red.jackf.tomlconfig.data.TOMLArray;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 
@@ -17,11 +17,7 @@ public class ListMapping implements Mapping<List<?>> {
         List<?> list = (List<?>) obj;
         TOMLArray array = new TOMLArray();
         for (Object object : list) {
-            try {
-                array.addData(populator.fromObject(object));
-            } catch (ReflectiveOperationException e) {
-                throw new ParsingException(e);
-            }
+            array.addData(populator.fromObject(object));
         }
         return array;
     }
@@ -31,11 +27,7 @@ public class ListMapping implements Mapping<List<?>> {
         List<Object> list = new ArrayList<>();
         int size = ((TOMLArray) value).size();
         for (int i = 0; i < size; i++) {
-            try {
-                list.add(populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
-            } catch (ReflectiveOperationException e) {
-                throw new ParsingException(e);
-            }
+            list.add(populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
         }
         return list;
     }

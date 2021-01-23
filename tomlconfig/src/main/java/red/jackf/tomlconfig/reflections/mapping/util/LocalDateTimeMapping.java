@@ -1,13 +1,12 @@
 package red.jackf.tomlconfig.reflections.mapping.util;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
-import red.jackf.tomlconfig.parser.data.TOMLDateTime;
-import red.jackf.tomlconfig.parser.data.TOMLValue;
+import red.jackf.tomlconfig.data.TOMLDateTime;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class LocalDateTimeMapping implements Mapping<LocalDateTime> {

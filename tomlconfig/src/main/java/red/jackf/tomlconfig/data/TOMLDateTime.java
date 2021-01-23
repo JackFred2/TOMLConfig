@@ -1,8 +1,8 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
 import java.time.temporal.Temporal;
 
-public class TOMLDateTime implements TOMLValue {
+public class TOMLDateTime extends TOMLValue {
     private final Temporal time;
 
     public TOMLDateTime(Temporal time) {

@@ -1,6 +1,6 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
-public class TOMLFloat implements TOMLValue {
+public class TOMLFloat extends TOMLValue {
     private final Double value;
 
     public TOMLFloat(Double value) {

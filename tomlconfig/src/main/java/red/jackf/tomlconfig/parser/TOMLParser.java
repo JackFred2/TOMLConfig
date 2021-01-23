@@ -2,7 +2,7 @@ package red.jackf.tomlconfig.parser;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
-import red.jackf.tomlconfig.parser.data.*;
+import red.jackf.tomlconfig.data.*;
 import red.jackf.tomlconfig.parser.token.*;
 
 import java.util.ArrayList;

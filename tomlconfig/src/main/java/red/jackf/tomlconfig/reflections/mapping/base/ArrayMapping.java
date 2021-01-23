@@ -1,8 +1,8 @@
 package red.jackf.tomlconfig.reflections.mapping.base;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
-import red.jackf.tomlconfig.parser.data.TOMLArray;
-import red.jackf.tomlconfig.parser.data.TOMLValue;
+import red.jackf.tomlconfig.data.TOMLArray;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 
@@ -16,7 +16,7 @@ public class ArrayMapping implements Mapping<Object> {
         TOMLArray array = new TOMLArray();
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
-            array.addData(populator.createTOMLValue(Array.get(object, i)));
+            array.addData(populator.fromObject(Array.get(object, i)));
         }
         return array;
     }
@@ -27,7 +27,7 @@ public class ArrayMapping implements Mapping<Object> {
         TOMLArray array = ((TOMLArray) value);
         Object toReturn = Array.newInstance(clazz.getComponentType(), array.size());
         for (int i = 0; i < array.size(); i++) {
-            Array.set(toReturn, i, populator.createObject(array.getData(i), clazz.getComponentType()));
+            Array.set(toReturn, i, populator.toObject(clazz.getComponentType(), array.getData(i)));
         }
         return toReturn;
     }

@@ -4,7 +4,7 @@ import org.junit.Test;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.TOMLParser;
-import red.jackf.tomlconfig.parser.data.TOMLTable;
+import red.jackf.tomlconfig.data.TOMLTable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

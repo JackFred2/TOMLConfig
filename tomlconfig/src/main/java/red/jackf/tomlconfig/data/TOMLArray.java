@@ -1,4 +1,4 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class TOMLArray implements TOMLValue {
+public class TOMLArray extends TOMLValue {
     private boolean sealed = false;
     private final List<TOMLValue> values = new ArrayList<>();
 
@@ -34,6 +34,10 @@ public class TOMLArray implements TOMLValue {
             iter.previous();
             iter.next().changeTableArraysToArrays();
         }
+    }
+
+    public boolean onlyTables() {
+        return values.stream().allMatch(v -> v instanceof TOMLTable);
     }
 
     @Override

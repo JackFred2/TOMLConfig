@@ -1,6 +1,6 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
-public class TOMLInteger implements TOMLValue {
+public class TOMLInteger extends TOMLValue {
     private final Long value;
 
     public TOMLInteger(Long value) {

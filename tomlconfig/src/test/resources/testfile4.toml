@@ -1,4 +1,4 @@
-hash = -1
+hash = -inf
 
 test = [["a", "b", "c"], [], ["e", "f"]]
 

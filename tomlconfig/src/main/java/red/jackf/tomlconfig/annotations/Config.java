@@ -11,25 +11,6 @@ import java.lang.annotation.Target;
 public interface Config {
 
     /**
-     * Defines various behaviors for a field.
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    @interface FieldData {
-        /**
-         * Defines a comment to be printed before the field. Will be broken into multiple lines if necessary
-         */
-        String comment() default "";
-        /**
-         * Defines a custom setter method to search for to be used when setting the field. Must be public, and take 1
-         * argument of the type of the field. <br />
-         * Default behavior is to use the field name with "set" prepended, or to directly set the field if not found;
-         * setting this field causes loading to fail if the method is not found.
-         */
-        String setter() default "";
-    }
-
-    /**
      * Called when a config is successfully deserialized.
      */
     default void onLoad() {}

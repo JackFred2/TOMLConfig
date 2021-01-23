@@ -1,10 +1,10 @@
 package red.jackf.tomlconfig.reflections.mapping.util;
 
 import red.jackf.tomlconfig.exceptions.ParsingException;
-import red.jackf.tomlconfig.parser.data.TOMLArray;
-import red.jackf.tomlconfig.parser.data.TOMLKey;
-import red.jackf.tomlconfig.parser.data.TOMLTable;
-import red.jackf.tomlconfig.parser.data.TOMLValue;
+import red.jackf.tomlconfig.data.TOMLArray;
+import red.jackf.tomlconfig.data.TOMLKey;
+import red.jackf.tomlconfig.data.TOMLTable;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 
@@ -20,12 +20,8 @@ public class MapMapping implements Mapping<Map<?, ?>> {
         Map<?, ?> map = (Map<?, ?>) object;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             TOMLTable entryTable = new TOMLTable();
-            try {
-                entryTable.addData(new TOMLKey("key"), populator.fromObject(entry.getKey()));
-                entryTable.addData(new TOMLKey("value"), populator.fromObject(entry.getValue()));
-            } catch (ReflectiveOperationException e) {
-                throw new ParsingException(e);
-            }
+            entryTable.addData(new TOMLKey("key"), populator.fromObject(entry.getKey()));
+            entryTable.addData(new TOMLKey("value"), populator.fromObject(entry.getValue()));
             result.addData(entryTable);
         }
         return result;
@@ -35,15 +31,11 @@ public class MapMapping implements Mapping<Map<?, ?>> {
     public Map<?, ?> toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
         Map<Object, Object> map = new HashMap<>();
         TOMLArray array = (TOMLArray) value;
-        try {
-            for (int i = 0; i < array.size(); i++) {
-                TOMLTable element = (TOMLTable) array.getData(i);
-                Object key = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], element.getData(new TOMLKey("key")));
-                Object mapValue = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[1], element.getData(new TOMLKey("value")));
-                map.put(key, mapValue);
-            }
-        } catch (ReflectiveOperationException e) {
-            throw new ParsingException(e);
+        for (int i = 0; i < array.size(); i++) {
+            TOMLTable element = (TOMLTable) array.getData(i);
+            Object key = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], element.getData(new TOMLKey("key")));
+            Object mapValue = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[1], element.getData(new TOMLKey("value")));
+            map.put(key, mapValue);
         }
         return map;
     }

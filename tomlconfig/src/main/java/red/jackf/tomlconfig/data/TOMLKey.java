@@ -1,4 +1,4 @@
-package red.jackf.tomlconfig.parser.data;
+package red.jackf.tomlconfig.data;
 
 import red.jackf.tomlconfig.parser.token.BareStringToken;
 import red.jackf.tomlconfig.parser.token.StringToken;
