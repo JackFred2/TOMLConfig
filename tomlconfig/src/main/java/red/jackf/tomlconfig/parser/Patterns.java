@@ -22,6 +22,9 @@ public abstract class Patterns {
     public static final Pattern INLINE_TABLE_BEGIN = Pattern.compile("^\\{");
     public static final Pattern INLINE_TABLE_END = Pattern.compile("^}");
 
+    public static final Pattern DATETIME_FULL = Pattern.compile("^(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})(?:[Tt ](?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(?:\\.(?<millis>[0-9]{1,9}))?(?<offset>[Zz]|[+-][0-9]{2}:[0-9]{2})?)?");
+    public static final Pattern LOCAL_TIME = Pattern.compile("^(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(?<millis>\\.[0-9]+)?");
+
     public static final Pattern BOOLEAN = Pattern.compile("^(true|false)");
 
     public static final Pattern SPECIAL_FLOAT = Pattern.compile("^([+-]?(?:inf|nan))");

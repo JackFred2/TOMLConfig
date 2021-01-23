@@ -17,8 +17,12 @@ Java `long`s and should be treated as such.
         - [x] Multiline
     - [x] Integers
     - [x] Floats
-    - [ ] Dates
+    - [x] Dates
     - [x] Tables
     - [x] Inline Tables
     - [x] Arrays
     - [x] Table Arrays
+- [x] Text -> TOMLTokens
+- [x] TOMLTokens -> Object
+- [ ] TOMLTokens -> Text
+- [x] Object -> TOMLTokens

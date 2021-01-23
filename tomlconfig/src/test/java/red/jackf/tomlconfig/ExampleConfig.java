@@ -2,7 +2,9 @@ package red.jackf.tomlconfig;
 
 import red.jackf.tomlconfig.annotations.Config;
 import red.jackf.tomlconfig.annotations.Transitive;
+import red.jackf.tomlconfig.reflections.mapping.util.OffsetDateTimeMapping;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 public class ExampleConfig implements Config {
@@ -13,6 +15,8 @@ public class ExampleConfig implements Config {
     }
 
     public User master = new User(0L, "0");
+
+    public OffsetDateTime time = OffsetDateTime.now();
 
     long hash = 348497234L;
 

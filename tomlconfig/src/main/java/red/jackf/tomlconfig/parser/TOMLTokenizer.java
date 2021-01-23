@@ -7,6 +7,7 @@ import red.jackf.tomlconfig.parser.token.processing.DoubleRightBracketToken;
 import red.jackf.tomlconfig.parser.token.processing.LeftBracketToken;
 import red.jackf.tomlconfig.parser.token.processing.RightBracketToken;
 
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -152,6 +153,44 @@ public class TOMLTokenizer {
 
         } else if ((matcher = SEPARATOR.matcher(toRead)).find()) {
             token = new SeparatorToken(contents.index); // array separator or inline table separator
+
+        } else if ((matcher = DATETIME_FULL.matcher(toRead)).find()) { // date
+            int year = Integer.parseInt(matcher.group("year"));
+            int month = Integer.parseInt(matcher.group("month"));
+            int day = Integer.parseInt(matcher.group("day"));
+            if (matcher.group("hour") != null) { // date and time
+                int hour = Integer.parseInt(matcher.group("hour"));
+                int minute = Integer.parseInt(matcher.group("minute"));
+                int second = Integer.parseInt(matcher.group("second"));
+                int nanos = 0;
+                if (matcher.group("millis") != null) {
+                    String millisMatch = matcher.group("millis");
+                    nanos = Integer.parseInt(millisMatch);
+                    for (int i = 0; i < (9 - millisMatch.length()); i++) nanos *= 10;
+                }
+                String offsetGroup = matcher.group("offset");
+                if (offsetGroup != null) { // date, time and offset
+                    if (offsetGroup.equals("z")) offsetGroup = "Z"; // java does not support lowercase z for offset, though TOML spec does
+                    ZoneOffset offset = ZoneOffset.of(offsetGroup);
+                    token = new DateTimeToken(contents.index, ZonedDateTime.of(year, month, day, hour, minute, second, nanos, offset));
+                } else {
+                    token = new DateTimeToken(contents.index, LocalDateTime.of(year, month, day, hour, minute, second, nanos));
+                }
+            } else {
+                token = new DateTimeToken(contents.index, LocalDate.of(year, month, day));
+            }
+
+        } else if ((matcher = LOCAL_TIME.matcher(toRead)).find()) { // time
+            int hour = Integer.parseInt(matcher.group("hour"));
+            int minute = Integer.parseInt(matcher.group("minute"));
+            int second = Integer.parseInt(matcher.group("second"));
+            int nanos = 0;
+            if (matcher.group("millis") != null) {
+                String millisMatch = matcher.group("millis");
+                nanos = Integer.parseInt(millisMatch);
+                for (int i = 0; i < (9 - millisMatch.length()); i++) nanos *= 10;
+            }
+            token = new DateTimeToken(contents.index, LocalTime.of(hour, minute, second, nanos));
 
         } else if ((matcher = BOOLEAN.matcher(toRead)).find()) {
             token = new BooleanToken(contents.index, matcher.group());

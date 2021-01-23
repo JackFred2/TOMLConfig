@@ -8,10 +8,13 @@ import red.jackf.tomlconfig.parser.data.TOMLTable;
 import red.jackf.tomlconfig.parser.data.TOMLValue;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import red.jackf.tomlconfig.reflections.mapping.base.*;
-import red.jackf.tomlconfig.reflections.mapping.util.ListMapping;
-import red.jackf.tomlconfig.reflections.mapping.util.SetMapping;
+import red.jackf.tomlconfig.reflections.mapping.util.*;
 
 import java.lang.reflect.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,10 @@ public class ClassPopulator {
 
         register(List.class, new ListMapping());
         register(Set.class, new SetMapping());
+        register(LocalTime.class, new LocalTimeMapping());
+        register(LocalDate.class, new LocalDateMapping());
+        register(LocalDateTime.class, new LocalDateTimeMapping());
+        register(OffsetDateTime.class, new OffsetDateTimeMapping());
     }
 
     public void register(Class<?> clazz, Mapping<?> mapping) {

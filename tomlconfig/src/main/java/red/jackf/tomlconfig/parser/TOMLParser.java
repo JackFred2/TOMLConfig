@@ -53,6 +53,8 @@ public class TOMLParser {
                     array.addData(new TOMLFloat(((FloatToken) token).getValue()));
                 } else if (token instanceof BooleanToken) {
                     array.addData(new TOMLBoolean(((BooleanToken) token).getValue()));
+                } else if (token instanceof DateTimeToken) {
+                    array.addData(new TOMLDateTime(((DateTimeToken) token).getTime()));
                 } else {
                     throw new ParsingException("Expecting value in array, got " + token);
                 }
@@ -92,6 +94,8 @@ public class TOMLParser {
                     table.addData(currentKey, new TOMLFloat(((FloatToken) token).getValue()));
                 } else if (token instanceof BooleanToken) {
                     table.addData(currentKey, new TOMLBoolean(((BooleanToken) token).getValue()));
+                } else if (token instanceof DateTimeToken) {
+                    table.addData(currentKey, new TOMLDateTime(((DateTimeToken) token).getTime()));
                 } else {
                     throw new ParsingException("Expecting value in inline table, got " + token);
                 }
@@ -274,6 +278,11 @@ public class TOMLParser {
             } else if (token instanceof FloatToken) {
                 assertState(state, State.ASSIGNING_VALUE);
                 current.addData(TOMLKey.of(nameList), new TOMLFloat(((FloatToken) token).getValue()));
+                state = State.BASE_END_OF_LINE;
+                nameList.clear();
+            } else if (token instanceof DateTimeToken) {
+                assertState(state, State.ASSIGNING_VALUE);
+                current.addData(TOMLKey.of(nameList), new TOMLDateTime(((DateTimeToken) token).getTime()));
                 state = State.BASE_END_OF_LINE;
                 nameList.clear();
             }
