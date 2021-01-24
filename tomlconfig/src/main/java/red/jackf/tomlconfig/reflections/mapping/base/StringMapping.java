@@ -14,7 +14,7 @@ public class StringMapping implements Mapping<String> {
     }
 
     @Override
-    public String toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public String toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLString) value).getValue();
     }
 }

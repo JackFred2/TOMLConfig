@@ -16,7 +16,7 @@ public class OffsetDateTimeMapping implements Mapping<OffsetDateTime> {
     }
 
     @Override
-    public OffsetDateTime toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
+    public OffsetDateTime toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
         return (OffsetDateTime) ((TOMLDateTime) value).getTime();
     }
 }

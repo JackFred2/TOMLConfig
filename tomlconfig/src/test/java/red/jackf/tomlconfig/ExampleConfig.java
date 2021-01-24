@@ -55,15 +55,30 @@ public class ExampleConfig implements Config {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             User user = (User) o;
-            return userId.equals(user.userId) && username.equals(user.username) && posts.equals(user.posts);
+            return Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(posts, user.posts) && Objects.equals(props, user.props);
         }
 
         @Transitive
         public static class Props {
             private boolean admin = false;
 
+            public Props() {}
+
             public Props(boolean admin) {
                 this.admin = admin;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Props props = (Props) o;
+                return admin == props.admin;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(admin);
             }
         }
 
@@ -74,24 +89,15 @@ public class ExampleConfig implements Config {
     }
 
     @Override
-    public String toString() {
-        return "ExampleConfig{" +
-            "users=" + users +
-            ", master=" + master +
-            ", hash=" + hash +
-            '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExampleConfig that = (ExampleConfig) o;
-        return hash == that.hash && users.equals(that.users) && master.equals(that.master);
+        return hash == that.hash && Objects.equals(users, that.users) && Objects.equals(master, that.master) && Objects.equals(time, that.time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(users, master, hash);
+        return Objects.hash(users, master, time, hash);
     }
 }

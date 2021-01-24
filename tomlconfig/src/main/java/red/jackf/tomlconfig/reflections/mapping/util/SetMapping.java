@@ -23,11 +23,11 @@ public class SetMapping implements Mapping<Set<?>> {
     }
 
     @Override
-    public Set<?> toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
+    public Set<?> toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
         Set<Object> set = new HashSet<>();
         int size = ((TOMLArray) value).size();
         for (int i = 0; i < size; i++) {
-            set.add(populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
+            set.add(populator.toObject(((ParameterizedType) type).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));
         }
         return set;
     }

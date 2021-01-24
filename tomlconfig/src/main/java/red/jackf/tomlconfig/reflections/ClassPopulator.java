@@ -232,7 +232,7 @@ public class ClassPopulator {
         if (mapping == null) {
             throw new ParsingException("No mapping registered for type " + type);
         }
-        return mapping.toObject(this, data, type);
+        return mapping.toObject(this, type, data);
     }
 
     /**
@@ -260,6 +260,6 @@ public class ClassPopulator {
                 return constructor.newInstance();
             }
         }
-        throw new IllegalStateException("No constructor available for " + clazz.getName());
+        throw new IllegalStateException("No default constructor available for " + clazz.getName() + ", ensure it has a 0-arg constructor available.");
     }
 }

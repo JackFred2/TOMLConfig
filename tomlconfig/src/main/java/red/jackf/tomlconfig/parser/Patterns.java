@@ -3,6 +3,12 @@ package red.jackf.tomlconfig.parser;
 import java.util.regex.Pattern;
 
 public abstract class Patterns {
+
+    /**
+     * Collection of Regex patterns representing TOML tokens; these are matched in order to identify which tokens are next
+     * available.
+     */
+
     public static final Pattern WHITESPACE = Pattern.compile("^[\t ]*");
 
     public static final Pattern COMMENT = Pattern.compile("^#(.*)(?=\\n|$)");

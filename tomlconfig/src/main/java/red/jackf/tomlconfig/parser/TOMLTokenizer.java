@@ -1,5 +1,6 @@
 package red.jackf.tomlconfig.parser;
 
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.token.*;
 import red.jackf.tomlconfig.parser.token.processing.DoubleLeftBracketToken;
@@ -17,8 +18,16 @@ import static red.jackf.tomlconfig.parser.Patterns.*;
 public class TOMLTokenizer {
     // https://toml.io/en/v1.0.0
 
-    // Get initial tokens from the string
-    public List<Token> tokenize(String contents) throws TokenizationException {
+    /**
+     * <p>Tokenize a string into a list of {@link Token} objects representing it's TOML value.
+     * <p>Ambiguous tokens like {@code [[} or {@code [} will be processed into valid tokens.</p>
+     *
+     * @param contents String to tokenize.
+     * @return A list of tokens representing the TOML file.
+     * @throws TokenizationException If there are any errors tokenizing the file such as unexpected values or mismatched
+     *                               array brackets.
+     */
+    protected List<Token> tokenize(String contents) throws TokenizationException {
         StringReader reader = new StringReader(contents);
         List<Token> rawTokens = readTokens(reader);
         return preprocess(rawTokens, reader);
@@ -56,7 +65,8 @@ public class TOMLTokenizer {
                 } else {
                     toAdd = new ArrayEndToken(toAdd.getIndex());
                     arrayCount--;
-                    if (arrayCount < 0) throw new TokenizationException("Unmatched end of array at " + reader.getLineAndChar(token.getIndex()));
+                    if (arrayCount < 0)
+                        throw new TokenizationException("Unmatched end of array at " + reader.getLineAndChar(token.getIndex()));
                 }
             } else if (toAdd instanceof DoubleLeftBracketToken) { // [[
                 if (last instanceof EndOfLineToken && arrayCount == 0) {
@@ -73,7 +83,8 @@ public class TOMLTokenizer {
                     processed.add(new ArrayEndToken(toAdd.getIndex()));
                     toAdd = new ArrayEndToken(toAdd.getIndex() + 1);
                     arrayCount -= 2;
-                    if (arrayCount < 0) throw new TokenizationException("Unmatched end of array at " + reader.getLineAndChar(token.getIndex()));
+                    if (arrayCount < 0)
+                        throw new TokenizationException("Unmatched end of array at " + reader.getLineAndChar(token.getIndex()));
                 }
             }
 
@@ -102,7 +113,7 @@ public class TOMLTokenizer {
     }
 
     // Generate tokens from the file until EOF
-    public List<Token> readTokens(StringReader reader) throws TokenizationException {
+    private List<Token> readTokens(StringReader reader) throws TokenizationException {
         List<Token> tokens = new ArrayList<>();
         while (!reader.ended()) {
             Token token = getNextToken(reader);
@@ -141,12 +152,12 @@ public class TOMLTokenizer {
         } else if ((matcher = DOUBLE_RIGHT_BRACKET.matcher(toRead)).find()) { // table array end or two left brackets (below)
             token = new DoubleRightBracketToken(contents.index);
 
-        } else if ( (matcher = LEFT_BRACKET.matcher(toRead)).find()) { // table name begin or array begin
+        } else if ((matcher = LEFT_BRACKET.matcher(toRead)).find()) { // table name begin or array begin
             token = new LeftBracketToken(contents.index);
         } else if ((matcher = RIGHT_BRACKET.matcher(toRead)).find()) { // table name end or array end
             token = new RightBracketToken(contents.index);
 
-        } else if ( (matcher = INLINE_TABLE_BEGIN.matcher(toRead)).find()) {
+        } else if ((matcher = INLINE_TABLE_BEGIN.matcher(toRead)).find()) {
             token = new InlineTableBeginToken(contents.index);
         } else if ((matcher = INLINE_TABLE_END.matcher(toRead)).find()) {
             token = new InlineTableEndToken(contents.index);
@@ -170,9 +181,10 @@ public class TOMLTokenizer {
                 }
                 String offsetGroup = matcher.group("offset");
                 if (offsetGroup != null) { // date, time and offset
-                    if (offsetGroup.equals("z")) offsetGroup = "Z"; // java does not support lowercase z for offset, though TOML spec does
+                    if (offsetGroup.equals("z"))
+                        offsetGroup = "Z"; // java does not support lowercase z for offset, though TOML spec does
                     ZoneOffset offset = ZoneOffset.of(offsetGroup);
-                    token = new DateTimeToken(contents.index, ZonedDateTime.of(year, month, day, hour, minute, second, nanos, offset));
+                    token = new DateTimeToken(contents.index, OffsetDateTime.of(year, month, day, hour, minute, second, nanos, offset));
                 } else {
                     token = new DateTimeToken(contents.index, LocalDateTime.of(year, month, day, hour, minute, second, nanos));
                 }

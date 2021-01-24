@@ -14,7 +14,7 @@ public class FloatMapping implements Mapping<Float> {
     }
 
     @Override
-    public Float toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Float toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLFloat) value).getValue().floatValue();
     }
 }

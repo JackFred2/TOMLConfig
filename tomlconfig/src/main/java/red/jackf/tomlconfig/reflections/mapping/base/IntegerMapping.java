@@ -14,7 +14,7 @@ public class IntegerMapping implements Mapping<Integer> {
     }
 
     @Override
-    public Integer toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Integer toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLInteger) value).getValue().intValue();
     }
 }

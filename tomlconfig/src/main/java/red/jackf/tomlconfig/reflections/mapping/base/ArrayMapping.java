@@ -22,8 +22,8 @@ public class ArrayMapping implements Mapping<Object> {
     }
 
     @Override
-    public Object toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
-        Class<?> clazz = ((Class<?>) typeInfo);
+    public Object toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
+        Class<?> clazz = ((Class<?>) type);
         TOMLArray array = ((TOMLArray) value);
         Object toReturn = Array.newInstance(clazz.getComponentType(), array.size());
         for (int i = 0; i < array.size(); i++) {

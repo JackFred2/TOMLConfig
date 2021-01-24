@@ -14,7 +14,7 @@ public class LongMapping implements Mapping<Long> {
     }
 
     @Override
-    public Long toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Long toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLInteger) value).getValue();
     }
 }

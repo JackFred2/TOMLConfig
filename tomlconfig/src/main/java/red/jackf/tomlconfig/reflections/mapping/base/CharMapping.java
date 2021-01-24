@@ -14,7 +14,7 @@ public class CharMapping implements Mapping<Character> {
     }
 
     @Override
-    public Character toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Character toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLString) value).getValue().charAt(0);
     }
 }

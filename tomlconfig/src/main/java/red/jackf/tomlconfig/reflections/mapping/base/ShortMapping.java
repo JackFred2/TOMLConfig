@@ -14,7 +14,7 @@ public class ShortMapping implements Mapping<Short> {
     }
 
     @Override
-    public Short toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Short toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLInteger) value).getValue().shortValue();
     }
 }

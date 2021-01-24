@@ -1,10 +1,11 @@
 package red.jackf.tomlconfig.parser;
 
+import red.jackf.tomlconfig.data.*;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
-import red.jackf.tomlconfig.data.*;
 import red.jackf.tomlconfig.parser.token.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,18 +14,21 @@ import java.util.ListIterator;
 public class TOMLParser {
     private final TOMLTokenizer TOKENIZER = new TOMLTokenizer();
 
-    public TOMLParser() {
-    }
-
+    /**
+     * Parse a string into a valid {@link TOMLValue} object representing the file.
+     *
+     * @see TOMLTokenizer#tokenize(String)
+     * @see red.jackf.tomlconfig.reflections.ClassPopulator#toObject(Type, TOMLValue)
+     * @param contents The string to parse; will be tokenized then further processed
+     * @return A {@link TOMLTable} representation of the passed string.
+     * @throws TokenizationException If an error occured during the tokenization process.
+     * @throws ParsingException      If the TOML passed does not represent a valid TOML file.
+     */
     public TOMLTable parse(String contents) throws TokenizationException, ParsingException {
         List<Token> tokens = TOKENIZER.tokenize(contents);
         TOMLTable root = toTable(tokens);
         root.changeTableArraysToArrays();
         return root;
-    }
-
-    private void migrateTableArrayToArray(TOMLTable table) {
-
     }
 
     private TOMLArray getArray(ListIterator<Token> iter) throws ParsingException {
@@ -139,7 +143,7 @@ public class TOMLParser {
         throw new ParsingException("Reached end of file while parsing key");
     }
 
-    public TOMLTable toTable(List<Token> tokens) throws ParsingException {
+    private TOMLTable toTable(List<Token> tokens) throws ParsingException {
         TOMLTable root = new TOMLTable();
         TOMLTable current = root;
         State state = State.BASE;

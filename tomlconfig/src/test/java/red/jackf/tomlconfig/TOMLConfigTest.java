@@ -4,6 +4,7 @@
 package red.jackf.tomlconfig;
 
 import org.junit.Test;
+import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.data.TOMLTable;
@@ -23,13 +24,11 @@ public class TOMLConfigTest {
         ExampleConfig config = new ExampleConfig();
         TOMLTable configTOML = (TOMLTable) new ClassPopulator().fromObject(config);
         //TOMLTable configTOML = new TOMLParser().parse(file);
-        System.out.println("TOML: " + configTOML);
-        TOMLWriter writer = new TOMLWriter();
-        writer.write(configTOML);
-        System.out.println("String:\n" + writer.get());
-        System.out.println("done");
-        //ExampleConfig parsedConfig = (ExampleConfig) ClassPopulator.INSTANCE.toObject(ExampleConfig.class, configTOML);
-       // assert config != parsedConfig;
-        //assert config.equals(parsedConfig);
+        String text = new TOMLWriter(2, 80).writeToString(configTOML);
+        TOMLValue parsed = new TOMLParser().parse(text);
+        System.out.println(parsed);
+        ExampleConfig parsedConfig = (ExampleConfig) new ClassPopulator().toObject(ExampleConfig.class, parsed);
+        assert config != parsedConfig;
+        assert config.equals(parsedConfig);
     }
 }

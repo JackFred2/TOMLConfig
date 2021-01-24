@@ -8,32 +8,51 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+/**
+ * TOMLWriter is responsible for converting a {@link TOMLValue} object to a string representation. This class is <i>not
+ * thread-safe</i>.
+ */
 public class TOMLWriter {
-    private static final int INDENT_STEP = 2;
-    private final StringBuilder builder = new StringBuilder();
+    private final int indentStep;
+    private final int maxLineWidth;
+
+    private StringBuilder builder = new StringBuilder();
     private final Stack<String> tableStack = new Stack<>();
+
     private int indentLevel = 0;
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
 
-    public TOMLWriter() {
+    public TOMLWriter(int indentStep, int maxLineWidth) {
+        this.maxLineWidth = maxLineWidth;
+        this.indentStep = indentStep;
+    }
 
+    private void clear() {
+        this.builder = new StringBuilder();
+        this.tableStack.clear();
     }
 
     private void indent() {
-        indentLevel += INDENT_STEP;
+        indentLevel += indentStep;
     }
 
-    private void deindent() {
+    private void deIndent() {
         if (indentLevel == 0) throw new IllegalStateException("Attempted to get negative indentation");
-        indentLevel -= INDENT_STEP;
+        indentLevel -= indentStep;
     }
 
-    public void write(TOMLValue tomlValue) {
-        write(tomlValue, false);
+    /**
+     * Serialize a TOMLValue using this TOMLWriter's settings.
+     * @param tomlValue {@link TOMLValue} to serialize.
+     */
+    public String writeToString(TOMLValue tomlValue) {
+        clear();
+        writeToString(tomlValue, false);
+        return get();
     }
 
-    public void write(TOMLValue toml, boolean skipTitle) {
+    private void writeToString(TOMLValue toml, boolean skipTitle) {
         if (toml instanceof TOMLDateTime) {
             TOMLDateTime dateTime = (TOMLDateTime) toml;
             builder.append(dateTime.getTime().toString());
@@ -70,8 +89,8 @@ public class TOMLWriter {
                     builder.append("]]");
                     indent();
                     newLine();
-                    deindent();
-                    write(array.getData(i), true);
+                    deIndent();
+                    writeToString(array.getData(i), true);
                 }
             } else {
                 builder.append('[');
@@ -84,8 +103,8 @@ public class TOMLWriter {
                         builder.append(' ');
                     }
                     for (int i = 0; i < array.size(); i++) {
-                        write(array.getData(i));
-                        if (i == array.size() - 1) deindent();
+                        writeToString(array.getData(i), false);
+                        if (i == array.size() - 1) deIndent();
                         else builder.append(',');
                         if (inlineTableDepth == 0) {
                             newLine();
@@ -125,7 +144,7 @@ public class TOMLWriter {
                         doComment(value);
                         if (value instanceof TOMLArray) tableStack.push(key);
                         addKey(key);
-                        write(value);
+                        writeToString(value, false);
                         if (value instanceof TOMLArray) tableStack.pop();
                         if (i < sortedKeys.size() - 1 || doAfter.size() > 0)
                             newLine();
@@ -137,11 +156,11 @@ public class TOMLWriter {
                     TOMLValue value = data.get(key);
                     doComment(value);
                     tableStack.push(TOMLString.toTOMLString(key));
-                    write(value);
+                    writeToString(value, false);
                     tableStack.pop();
                 }
 
-                if (!root) deindent();
+                if (!root) deIndent();
             } else {
                 builder.append("{ ");
                 inlineTableDepth++;
@@ -149,7 +168,7 @@ public class TOMLWriter {
                 for (int i = 0; i < sortedKeys.size(); i++) {
                     String key = sortedKeys.get(i);
                     addKey(key);
-                    write(data.get(key));
+                    writeToString(data.get(key), false);
                     if (i < sortedKeys.size() - 1) builder.append(", ");
                 }
                 inlineTableDepth--;
@@ -158,7 +177,7 @@ public class TOMLWriter {
         }
     }
 
-    public String get() {
+    private String get() {
         return builder.toString();
     }
 

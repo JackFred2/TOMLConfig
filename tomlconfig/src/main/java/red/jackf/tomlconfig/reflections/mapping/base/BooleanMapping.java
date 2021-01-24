@@ -14,7 +14,7 @@ public class BooleanMapping implements Mapping<Boolean> {
     }
 
     @Override
-    public Boolean toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Boolean toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLBoolean) value).getValue();
     }
 }

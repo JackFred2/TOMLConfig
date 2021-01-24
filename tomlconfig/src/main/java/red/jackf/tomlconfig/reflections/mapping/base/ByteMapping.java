@@ -14,7 +14,7 @@ public class ByteMapping implements Mapping<Byte> {
     }
 
     @Override
-    public Byte toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Byte toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLInteger) value).getValue().byteValue();
     }
 }

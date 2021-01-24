@@ -1,5 +1,8 @@
 package red.jackf.tomlconfig.parser.token;
 
+/**
+ * Represents a single element of a TOML array.
+ */
 public abstract class Token {
     private final int index;
 

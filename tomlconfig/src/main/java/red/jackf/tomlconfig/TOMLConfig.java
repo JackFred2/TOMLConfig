@@ -6,7 +6,16 @@ package red.jackf.tomlconfig;
 import red.jackf.tomlconfig.annotations.Config;
 
 public class TOMLConfig {
-    public static <T extends Config> T readConfig(String contents, Class<T> spec) {
+    /**
+     * Create a new Config reader instance.
+     */
+    public TOMLConfig() {
+
+    }
+
+    public <T extends Config> T readConfig(String contents, Class<T> spec) {
         return null;
     }
+
+
 }

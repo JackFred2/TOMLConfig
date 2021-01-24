@@ -28,13 +28,13 @@ public class MapMapping implements Mapping<Map<?, ?>> {
     }
 
     @Override
-    public Map<?, ?> toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
+    public Map<?, ?> toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
         Map<Object, Object> map = new HashMap<>();
         TOMLArray array = (TOMLArray) value;
         for (int i = 0; i < array.size(); i++) {
             TOMLTable element = (TOMLTable) array.getData(i);
-            Object key = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[0], element.getData(new TOMLKey("key")));
-            Object mapValue = populator.toObject(((ParameterizedType) typeInfo).getActualTypeArguments()[1], element.getData(new TOMLKey("value")));
+            Object key = populator.toObject(((ParameterizedType) type).getActualTypeArguments()[0], element.getData(new TOMLKey("key")));
+            Object mapValue = populator.toObject(((ParameterizedType) type).getActualTypeArguments()[1], element.getData(new TOMLKey("value")));
             map.put(key, mapValue);
         }
         return map;

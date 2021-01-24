@@ -14,7 +14,7 @@ public class DoubleMapping implements Mapping<Double> {
     }
 
     @Override
-    public Double toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) {
+    public Double toObject(ClassPopulator populator, Type type, TOMLValue value) {
         return ((TOMLFloat) value).getValue();
     }
 }

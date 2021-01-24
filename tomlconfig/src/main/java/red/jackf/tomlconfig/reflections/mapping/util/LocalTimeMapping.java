@@ -16,7 +16,7 @@ public class LocalTimeMapping implements Mapping<LocalTime> {
     }
 
     @Override
-    public LocalTime toObject(ClassPopulator populator, TOMLValue value, Type typeInfo) throws ParsingException {
+    public LocalTime toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
         return (LocalTime) ((TOMLDateTime) value).getTime();
     }
 }
