@@ -1,11 +1,9 @@
 package red.jackf.tomlconfig.writer;
 
 import red.jackf.tomlconfig.data.*;
+import red.jackf.tomlconfig.settings.KeySortMode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
  */
 public class TOMLWriter {
     private final int indentStep;
+    private final KeySortMode keySortMode;
     private final int maxLineWidth;
 
     private StringBuilder builder = new StringBuilder();
@@ -23,9 +22,10 @@ public class TOMLWriter {
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
 
-    public TOMLWriter(int indentStep, int maxLineWidth) {
+    public TOMLWriter(int indentStep, int maxLineWidth, KeySortMode keySortMode) {
         this.maxLineWidth = maxLineWidth;
         this.indentStep = indentStep;
+        this.keySortMode = keySortMode;
     }
 
     private void clear() {
@@ -76,14 +76,13 @@ public class TOMLWriter {
             builder.append(((TOMLBoolean) toml).getValue() ? "true" : "false");
         } else if (toml instanceof TOMLString) {
             String str = toml.toString();
-            if (str.charAt(0) != '"' || str.charAt(0) != '\'') str = "\"" + str + "\"";
+            if (str.charAt(0) != '"' && str.charAt(0) != '\'') str = "\"" + str + "\"";
             builder.append(str);
         } else if (toml instanceof TOMLArray) {
             TOMLArray array = (TOMLArray) toml;
             if (array.onlyTables() && normalArrayDepth == 0) {
 
                 for (int i = 0; i < array.size(); i++) {
-                    newLine();
                     builder.append("[[");
                     printTableNameStack();
                     builder.append("]]");
@@ -119,7 +118,7 @@ public class TOMLWriter {
         } else if (toml instanceof TOMLTable) {
             TOMLTable table = (TOMLTable) toml;
             Map<String, TOMLValue> data = table.getAllData();
-            List<String> sortedKeys = data.keySet().stream().sorted().collect(Collectors.toList());
+            List<String> keys = keySortMode == KeySortMode.DECLARATION_ORDER ? new ArrayList<>(data.keySet()) : data.keySet().stream().sorted().collect(Collectors.toList());
             if (normalArrayDepth == 0) {
                 boolean root = tableStack.empty();
 
@@ -136,8 +135,8 @@ public class TOMLWriter {
 
                 List<String> doAfter = new ArrayList<>();
 
-                for (int i = 0; i < sortedKeys.size(); i++) {
-                    String key = sortedKeys.get(i);
+                for (int i = 0; i < keys.size(); i++) {
+                    String key = keys.get(i);
                     TOMLValue value = data.get(key);
                     if (value instanceof TOMLTable || (value instanceof TOMLArray) && (((TOMLArray) value).onlyTables())) doAfter.add(key);
                     else {
@@ -146,30 +145,33 @@ public class TOMLWriter {
                         addKey(key);
                         writeToString(value, false);
                         if (value instanceof TOMLArray) tableStack.pop();
-                        if (i < sortedKeys.size() - 1 || doAfter.size() > 0)
+                        if (i < keys.size() - 1 || doAfter.size() > 0)
                             newLine();
                     }
                 }
-                newLine();
 
                 for (String key : doAfter) {
                     TOMLValue value = data.get(key);
+                    newLine();
                     doComment(value);
                     tableStack.push(TOMLString.toTOMLString(key));
                     writeToString(value, false);
                     tableStack.pop();
                 }
 
-                if (!root) deIndent();
+                if (!root) {
+                    deIndent();
+                    newLine();
+                }
             } else {
                 builder.append("{ ");
                 inlineTableDepth++;
 
-                for (int i = 0; i < sortedKeys.size(); i++) {
-                    String key = sortedKeys.get(i);
+                for (int i = 0; i < keys.size(); i++) {
+                    String key = keys.get(i);
                     addKey(key);
                     writeToString(data.get(key), false);
-                    if (i < sortedKeys.size() - 1) builder.append(", ");
+                    if (i < keys.size() - 1) builder.append(", ");
                 }
                 inlineTableDepth--;
                 builder.append("}");
@@ -183,8 +185,24 @@ public class TOMLWriter {
 
     private void doComment(TOMLValue value) {
         if (value.getComment() != null) {
-            builder.append("# ").append(value.getComment());
-            newLine();
+            List<String> lines = new ArrayList<>();
+            String[] words = value.getComment().split(" ");
+            StringBuilder current = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                String word = words[i];
+                if (current.length() == 0 || current.length() + 1 + word.length() <= maxLineWidth - 2 - indentLevel) {
+                    if (current.length() == 0) current = new StringBuilder(word);
+                    else current.append(" ").append(word);
+                } else {
+                    lines.add(current.toString());
+                    current = new StringBuilder();
+                }
+            }
+            lines.add(current.toString());
+            for (String line : lines) {
+                builder.append("# ").append(line);
+                newLine();
+            }
         }
     }
 

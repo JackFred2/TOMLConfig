@@ -10,6 +10,8 @@ import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.TOMLParser;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.ReflectionUtil;
+import red.jackf.tomlconfig.settings.FailMode;
+import red.jackf.tomlconfig.settings.KeySortMode;
 import red.jackf.tomlconfig.writer.TOMLWriter;
 
 import java.io.BufferedReader;
@@ -29,11 +31,11 @@ public class TOMLConfig {
     private final TOMLWriter writer;
     private final FailMode failMode;
 
-    private TOMLConfig(FailMode failMode, int indentationStep, int maxLineLength) {
+    private TOMLConfig(FailMode failMode, int indentationStep, int maxLineLength, KeySortMode keySortMode) {
         this.failMode = failMode;
         this.parser = new TOMLParser();
         this.classPopulator = new ClassPopulator();
-        this.writer = new TOMLWriter(indentationStep, maxLineLength);
+        this.writer = new TOMLWriter(indentationStep, maxLineLength, keySortMode);
 
     }
 
@@ -97,15 +99,11 @@ public class TOMLConfig {
         }
     }
 
-    public enum FailMode {
-        THROW, // Pass the exception upwards through the call stack.
-        LOG_AND_LOAD_DEFAULT // Log the exception, and load the default config.
-    }
-
     public static class Builder {
         private int indentationStep = 2;
         private int maxLineLength = 80;
         private FailMode readFailMode = FailMode.THROW;
+        private KeySortMode keySortMode = KeySortMode.DECLARATION_ORDER;
 
         private Builder() {}
 
@@ -129,6 +127,7 @@ public class TOMLConfig {
          * <p>Sets the maximum length that a <i>comment</i> is allowed to go to. Any longer, and the comment will be broken
          * up between words to fit if possible.</p>
          * <p>Default is 80 characters.</p>
+         * <p>Not current implemented.</p>
          *
          * @param maxLineLength Maximum length a comment is allowed to go to
          * @return The Builder object
@@ -151,12 +150,25 @@ public class TOMLConfig {
         }
 
         /**
+         * <p>How to sort the keys in config files. By default, it is in declaration order, however you can also sort by
+         * alphabetical order.</p>
+         * <p>Tables (and arrays of tables) are always written after the rest of the object due to TOML mechanics, but
+         * otherwise still respect this mode.</p>
+         * @param keySortMode Which mode to sort by. One of {@link KeySortMode}.
+         * @return The Builder object.
+         */
+        public Builder withKeySortMode(KeySortMode keySortMode) {
+            this.keySortMode = keySortMode;
+            return this;
+        }
+
+        /**
          * Compile all settings and return a TOMLConfig object.
          *
          * @return A built TOMLConfig object
          */
         public TOMLConfig build() {
-            return new TOMLConfig(readFailMode, indentationStep, maxLineLength);
+            return new TOMLConfig(readFailMode, indentationStep, maxLineLength, keySortMode);
         }
     }
 }

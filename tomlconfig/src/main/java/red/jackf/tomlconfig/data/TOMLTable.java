@@ -3,14 +3,11 @@ package red.jackf.tomlconfig.data;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TOMLTable extends TOMLValue {
     private Sealed sealed = Sealed.NO;
-    private final Map<String, TOMLValue> data = new HashMap<>();
+    private final Map<String, TOMLValue> data = new LinkedHashMap<>();
 
     protected void addData(String key, TOMLValue value) throws ParsingException {
         if (data.containsKey(key)) throw new ParsingException("Key '" + key + "' already exists in TOMLTable object.");

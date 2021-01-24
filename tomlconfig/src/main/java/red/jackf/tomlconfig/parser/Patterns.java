@@ -45,5 +45,5 @@ public abstract class Patterns {
     public static final Pattern BASIC_STRING = Pattern.compile("^\"(?<contents>(?:[^\\\\\"\\n]|\\\\[^\\n])*)\"");
     public static final Pattern LITERAL_STRING = Pattern.compile("^'(?<contents>[^'\\n]*?)'");
     public static final Pattern BASIC_MULTILINE_STRING = Pattern.compile("^\"\"\"(?:\\n)?(?<contents>|(?<quotes>\"{0,2})(?:(?:[^\\\\]|\\\\(?:.|\\n))*?(?<!\"\"\"))\\k<quotes>(?<![^\"]\"\"\"))\"\"\""); // Does not strip backslash-newline-whitespaces!
-    public static final Pattern LITERAL_MULTILINE_STRING = Pattern.compile("^'''(?:\\n)?(?<contents>(?<quotes>'{0,2}).*?\\k<quotes>)'''");
+    public static final Pattern LITERAL_MULTILINE_STRING = Pattern.compile("^'''(?:\\n)?(?<contents>(?<quotes>'{0,2})(?:.|\\n)*?\\k<quotes>)'''");
 }
