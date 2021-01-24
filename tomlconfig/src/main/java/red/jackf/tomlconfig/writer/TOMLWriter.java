@@ -21,6 +21,7 @@ public class TOMLWriter {
     private int indentLevel = 0;
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
+    //private int distanceToLineStart = 0;
 
     public TOMLWriter(int indentStep, int maxLineWidth, KeySortMode keySortMode) {
         this.maxLineWidth = maxLineWidth;
@@ -42,6 +43,16 @@ public class TOMLWriter {
         indentLevel -= indentStep;
     }
 
+    private void append(String str) {
+        builder.append(str);
+        //distanceToLineStart += str.length();
+    }
+
+    private void append(char c) {
+        builder.append(c);
+        //distanceToLineStart += 1;
+    }
+
     /**
      * Serialize a TOMLValue using this TOMLWriter's settings.
      * @param tomlValue {@link TOMLValue} to serialize.
@@ -55,65 +66,65 @@ public class TOMLWriter {
     private void writeToString(TOMLValue toml, boolean skipTitle) {
         if (toml instanceof TOMLDateTime) {
             TOMLDateTime dateTime = (TOMLDateTime) toml;
-            builder.append(dateTime.getTime().toString());
+            append(dateTime.getTime().toString());
         } else if (toml instanceof TOMLFloat) {
             TOMLFloat tomlFloat = (TOMLFloat) toml;
             Double value = tomlFloat.getValue();
             if (value.isInfinite()) {
                 if (value == Double.NEGATIVE_INFINITY) {
-                    builder.append("-inf");
+                    append("-inf");
                 } else {
-                    builder.append("inf");
+                    append("inf");
                 }
             } else if (value.isNaN()) {
-                builder.append("nan");
+                append("nan");
             } else {
-                builder.append(value);
+                append(value.toString());
             }
         } else if (toml instanceof TOMLInteger) {
-            builder.append(((TOMLInteger) toml).getValue().toString());
+            append(((TOMLInteger) toml).getValue().toString());
         } else if (toml instanceof TOMLBoolean) {
-            builder.append(((TOMLBoolean) toml).getValue() ? "true" : "false");
+            append(((TOMLBoolean) toml).getValue() ? "true" : "false");
         } else if (toml instanceof TOMLString) {
             String str = toml.toString();
             if (str.charAt(0) != '"' && str.charAt(0) != '\'') str = "\"" + str + "\"";
-            builder.append(str);
+            append(str);
         } else if (toml instanceof TOMLArray) {
             TOMLArray array = (TOMLArray) toml;
             if (array.onlyTables() && normalArrayDepth == 0) {
 
                 for (int i = 0; i < array.size(); i++) {
-                    builder.append("[[");
+                    append("[[");
                     printTableNameStack();
-                    builder.append("]]");
+                    append("]]");
                     indent();
                     newLine();
                     deIndent();
                     writeToString(array.getData(i), true);
                 }
             } else {
-                builder.append('[');
+                append('[');
                 if (array.size() > 0) {
                     normalArrayDepth++;
                     indent();
                     if (inlineTableDepth == 0) {
                         newLine();
                     } else {
-                        builder.append(' ');
+                        append(' ');
                     }
                     for (int i = 0; i < array.size(); i++) {
                         writeToString(array.getData(i), false);
                         if (i == array.size() - 1) deIndent();
-                        else builder.append(',');
+                        else append(',');
                         if (inlineTableDepth == 0) {
                             newLine();
                         } else {
-                            builder.append(' ');
+                            append(' ');
                         }
                     }
                     normalArrayDepth--;
                 }
-                builder.append(']');
+                append(']');
             }
         } else if (toml instanceof TOMLTable) {
             TOMLTable table = (TOMLTable) toml;
@@ -125,9 +136,9 @@ public class TOMLWriter {
                 // append name
                 if (!root) {
                     if (!skipTitle) {
-                        builder.append('[');
+                        append('[');
                         printTableNameStack();
-                        builder.append(']');
+                        append(']');
                     }
                     indent();
                     if (!skipTitle) newLine();
@@ -164,7 +175,7 @@ public class TOMLWriter {
                     newLine();
                 }
             } else {
-                builder.append("{ ");
+                append("{ ");
                 inlineTableDepth++;
 
                 for (int i = 0; i < keys.size(); i++) {
@@ -174,7 +185,7 @@ public class TOMLWriter {
                     if (i < keys.size() - 1) builder.append(", ");
                 }
                 inlineTableDepth--;
-                builder.append("}");
+                append("}");
             }
         }
     }
@@ -196,11 +207,13 @@ public class TOMLWriter {
                 } else {
                     lines.add(current.toString());
                     current = new StringBuilder();
+                    current.append(word);
                 }
             }
             lines.add(current.toString());
             for (String line : lines) {
-                builder.append("# ").append(line);
+                append("# ");
+                append(line);
                 newLine();
             }
         }
@@ -210,20 +223,21 @@ public class TOMLWriter {
      * Writes the current table name stack in the form a.b.c
      */
     private void printTableNameStack() {
-        builder.append(TOMLString.toTOMLString(tableStack.get(0)));
+        append(TOMLString.toTOMLString(tableStack.get(0)));
         for (int i = 1; i < tableStack.size(); i++) {
-            builder.append('.');
-            builder.append(TOMLString.toTOMLString(tableStack.get(i)));
+            append('.');
+            append(TOMLString.toTOMLString(tableStack.get(i)));
         }
     }
 
     private void addKey(String name) {
-        builder.append(TOMLString.toTOMLString(name));
-        builder.append(" = ");
+        append(TOMLString.toTOMLString(name));
+        append(" = ");
     }
 
     private void newLine() {
-        builder.append('\n');
-        for (int i = 0; i < indentLevel; i++) builder.append(' ');
+        append('\n');
+        for (int i = 0; i < indentLevel; i++) append(' ');
+        //distanceToLineStart = indentLevel;
     }
 }
