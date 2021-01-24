@@ -13,6 +13,8 @@ public class ExampleConfig implements Config {
 
     public OffsetDateTime generatedTime = OffsetDateTime.now();
 
+    public Mode mode = Mode.BETA;
+
     public char character = 'x';
     public double double$Val = 6e+51;
     public String testStr = "long long long \n" +
@@ -150,5 +152,12 @@ public class ExampleConfig implements Config {
     @Override
     public int hashCode() {
         return Objects.hash(version, generatedTime, character, double$Val, testStr, flags, client, users);
+    }
+
+    public enum Mode {
+        ALPHA,
+        BETA,
+        GAMMA,
+        DELTA
     }
 }

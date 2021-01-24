@@ -50,6 +50,7 @@ public class ClassPopulator {
         register(Short.class, new ShortMapping());
         register(String.class, new StringMapping());
 
+        register(Enum.class, new EnumMapping());
         register(List.class, new ListMapping());
         register(Set.class, new SetMapping());
         register(Map.class, new MapMapping());
