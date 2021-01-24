@@ -1,9 +1,6 @@
 package red.jackf.tomlconfig.reflections;
 
-import red.jackf.tomlconfig.annotations.Comment;
 import red.jackf.tomlconfig.annotations.Config;
-import red.jackf.tomlconfig.annotations.Setter;
-import red.jackf.tomlconfig.annotations.Transitive;
 import red.jackf.tomlconfig.data.TOMLKey;
 import red.jackf.tomlconfig.data.TOMLTable;
 import red.jackf.tomlconfig.data.TOMLValue;
@@ -114,25 +111,26 @@ public class ClassPopulator {
     }
 
     /**
-     * Convert a whole TOMLTable to an object based off a class definition. Uses a mapping if available, or tries to
-     * populate the fields manually if not. Use this method to recursively deserialize objects if writing your own
-     * {@link Mapping}.
-     *
-     * @param type  The type to model {@code value} as
-     * @param value The {@link TOMLValue} node to parse.
-     * @throws ParsingException If a the object could not be populated
+     * Internal method to deserialize objects. Uses a mapping if available, or tries to
+     * populate the fields manually if not. Use this method to recursively deserialize objects if writing your own {@link Mapping}.
+     * @param type Type of the object you're expecting
+     * @param value TOML representation of the object
+     * @return The object that you're expecting, populated with data from {@code value}
+     * @throws ParsingException If the object can not be deserialized correctly.
      */
-    public Object toObject(Type type, TOMLValue value) throws ParsingException {
+    public <T> T toObject(Type type, TOMLValue value) throws ParsingException {
         try {
             if (hasMapping(type)) {
-                return createObject(type, value);
+                @SuppressWarnings("unchecked")
+                T casted = (T) createObject(type, value);
+                return casted;
             } else {
                 TOMLTable root = (TOMLTable) value;
                 Class<?> clazz;
                 if (type instanceof Class<?>) clazz = (Class<?>) type;
                 else if (type instanceof ParameterizedType) clazz = (Class<?>) ((ParameterizedType) type).getRawType();
                 else throw new UnsupportedOperationException("Unsupported type " + type);
-                Object object = instantiate(clazz);
+                Object object = ReflectionUtil.instantiate(clazz);
                 Field[] fields = clazz.getDeclaredFields();
                 for (Field field : fields) {
                     field.setAccessible(true);
@@ -142,13 +140,13 @@ public class ClassPopulator {
                         TOMLValue data = root.getData(new TOMLKey(name));
                         if (data != null) { // non-existing fields will be left at default.
                             Object fieldObject;
-                            if (field.getType().isAnnotationPresent(Transitive.class) || field.isAnnotationPresent(Transitive.class)) {
+                            if (field.getType().isAnnotationPresent(Config.Transitive.class) || field.isAnnotationPresent(Config.Transitive.class)) {
                                 fieldObject = toObject(field.getType(), data);
                             } else {
                                 fieldObject = createObject(field.getGenericType(), data);
                             }
 
-                            Setter setter = field.getAnnotation(Setter.class);
+                            Config.Setter setter = field.getAnnotation(Config.Setter.class);
 
                             // try and find a setter for the field.
                             boolean set = false;
@@ -161,7 +159,7 @@ public class ClassPopulator {
                                     }
                                 }
                                 if (!set)
-                                    throw new ParsingException("Could not find designated setter method matching @Setter name of " + setter.value());
+                                    throw new ParsingException("Could not find designated setter method matching @Config.Setter name of " + setter.value());
                             } else {
                                 for (Method method : clazz.getMethods()) {
                                     if (Modifier.isPublic(method.getModifiers()) && method.getName().toLowerCase().equals("set" + name.toLowerCase()) && method.getReturnType() == Void.TYPE && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
@@ -177,7 +175,9 @@ public class ClassPopulator {
                     field.setAccessible(false);
                 }
 
-                return object;
+                @SuppressWarnings("unchecked")
+                T casted = (T) object;
+                return casted;
             }
         } catch (ReflectiveOperationException ex) {
             throw new ParsingException(ex);
@@ -206,7 +206,7 @@ public class ClassPopulator {
                         String name = field.getName();
                         if (field.get(object) != null) { // null fields will not be added.
                             TOMLValue fieldValue = fromObject(field.get(object));
-                            Comment comment = field.getAnnotation(Comment.class);
+                            Config.Comment comment = field.getAnnotation(Config.Comment.class);
                             if (comment != null) {
                                 fieldValue.setComment(comment.value());
                             }
@@ -246,20 +246,4 @@ public class ClassPopulator {
         return mapping.fromObject(this, object);
     }
 
-    /**
-     * Create a new instance of a class. Assumes that a no-args constructor exists.
-     *
-     * @throws ReflectiveOperationException If instantiating the object causes an error.
-     * @throws IllegalStateException        If no no-args constructor exists.
-     */
-    private static <C> C instantiate(Class<C> clazz) throws ReflectiveOperationException {
-        @SuppressWarnings("unchecked")
-        Constructor<C>[] constructors = (Constructor<C>[]) clazz.getDeclaredConstructors();
-        for (Constructor<C> constructor : constructors) {
-            if (constructor.getParameterCount() == 0) {
-                return constructor.newInstance();
-            }
-        }
-        throw new IllegalStateException("No default constructor available for " + clazz.getName() + ", ensure it has a 0-arg constructor available.");
-    }
 }

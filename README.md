@@ -7,20 +7,3 @@ TOMLConfig supports Offset Date-Times, Local Date-Times, Local Dates, and Local 
 
 Second fractions are supported up to the nanosecond (9 digits).
 
-## Feature checklist
-- [x] Basic TOML parsing
-    - [x] Strings
-        - [x] Bare
-        - [x] Basic
-        - [x] Multiline
-    - [x] Integers
-    - [x] Floats
-    - [x] Dates
-    - [x] Tables
-    - [x] Inline Tables
-    - [x] Arrays
-    - [x] Table Arrays
-- [x] Text -> TOMLTokens
-- [x] TOMLTokens -> Object
-- [ ] TOMLTokens -> Text
-- [x] Object -> TOMLTokens
