@@ -9,12 +9,14 @@ import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import red.jackf.tomlconfig.reflections.mapping.base.*;
 import red.jackf.tomlconfig.reflections.mapping.util.*;
 
+import java.beans.Transient;
 import java.lang.reflect.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.logging.LogManager;
 
 /**
  * This class is responsible for taking an {@link Config} object and populating the
@@ -61,15 +63,36 @@ public class ClassPopulator {
     }
 
     /**
-     * Register a custom mapping to map a class to TOML, or vice versa. Supports interfaces as well as classes; a direct
-     * mapping will be picked over superclass mappings (e.g. if a mapping is defined for both {@link HashMap} and
-     * {@link Map}, then serializing a {@link HashMap} object will use the {@link HashMap} mapping, whereas serializing a
-     * {@link TreeMap} will use the {@link Map} mapping.
+     * <p>Register a custom mapping to map a class to TOML, or vice versa. Supports interfaces as well as classes.</p>
+     * <p>If a mapping is registered for a non-abstract class, then it will only match direct references to that class:</p>
+     * <pre>
+     *     class BigCat {}
+     *     class Lion extends BigCat {}
+     *
+     *      ...
+     *
+     *     register(BigCat.class, new BigCatMapping());
+     *     hasMapping(BigCat.class) == true;
+     *     hasMapping(Lion.class) == false; </pre>
+     * <p>If a mapping is registered for an abstract class or interface, then it will match any references to that class
+     * <i>or superclass</i>:</p>
+     * <pre>
+     *     interface Shape {}
+     *     class Rectangle implements Shape {}
+     *
+     *      ...
+     *
+     *     register(Shape.class, new ShapeMapping());
+     *     hasMapping(Shape.class) == true;
+     *     hasMapping(Rectangle.class) == true; </pre>
+     *
+     * @see Mapping
      *
      * @param clazz   Class that the mapping supports;
      * @param mapping An instance of a {@link Mapping} object;
      */
     public void register(Class<?> clazz, Mapping<?> mapping) {
+        if (mappings.containsKey(clazz)) System.err.println("New mapping " + mapping.getClass().getCanonicalName() + " overwrites existing mapping " + mappings.get(clazz).getClass().getCanonicalName());
         mappings.put(clazz, mapping);
     }
 
@@ -101,12 +124,14 @@ public class ClassPopulator {
             }
         }
 
-        // interfaces
+        // interfaces & enums
         for (Type key : mappings.keySet()) {
-            if (key instanceof Class<?>)
-                if (((Class<?>) key).isAssignableFrom(clazz)) {
+            if (key instanceof Class<?>) {
+                Class<?> keyClass = (Class<?>) key;
+                if (keyClass.isAssignableFrom(clazz) && (keyClass.isInterface() || Modifier.isAbstract(keyClass.getModifiers()) || keyClass == Enum.class)) {
                     return mappings.get(key);
                 }
+            }
         }
         return null;
     }
@@ -116,6 +141,7 @@ public class ClassPopulator {
      * populate the fields manually if not. Use this method to recursively deserialize objects if writing your own {@link Mapping}.
      * @param type Type of the object you're expecting
      * @param value TOML representation of the object
+     * @param <T> Type of object to serialize.
      * @return The object that you're expecting, populated with data from {@code value}
      * @throws ParsingException If the object can not be deserialized correctly.
      */
@@ -136,7 +162,8 @@ public class ClassPopulator {
                 for (Field field : fields) {
                     field.setAccessible(true);
                     int modifiers = field.getModifiers();
-                    if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    // transient or static fields are ignored.
+                    if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers) && !field.isAnnotationPresent(Config.Transient.class)) {
                         String name = field.getName();
                         TOMLValue data = root.getData(new TOMLKey(name));
                         if (data != null) { // non-existing fields will be left at default.
@@ -152,15 +179,19 @@ public class ClassPopulator {
                             // try and find a setter for the field.
                             boolean set = false;
                             if (setter != null) {
-                                for (Method method : clazz.getMethods()) {
-                                    if (Modifier.isPublic(method.getModifiers()) && method.getName().equals(setter.value()) && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
-                                        method.invoke(object, fieldObject);
-                                        set = true;
-                                        break;
+                                if (setter.value().equals("")) {
+                                    field.set(object, fieldObject);
+                                } else {
+                                    for (Method method : clazz.getMethods()) {
+                                        if (Modifier.isPublic(method.getModifiers()) && method.getName().equals(setter.value()) && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {
+                                            method.invoke(object, fieldObject);
+                                            set = true;
+                                            break;
+                                        }
                                     }
+                                    if (!set)
+                                        throw new ParsingException("Could not find designated setter method matching @Config.Setter name of " + setter.value());
                                 }
-                                if (!set)
-                                    throw new ParsingException("Could not find designated setter method matching @Config.Setter name of " + setter.value());
                             } else {
                                 for (Method method : clazz.getMethods()) {
                                     if (Modifier.isPublic(method.getModifiers()) && method.getName().toLowerCase().equals("set" + name.toLowerCase()) && method.getReturnType() == Void.TYPE && method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(field.getType())) {

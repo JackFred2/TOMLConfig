@@ -56,6 +56,7 @@ public class TOMLWriter {
     /**
      * Serialize a TOMLValue using this TOMLWriter's settings.
      * @param tomlValue {@link TOMLValue} to serialize.
+     * @return String representation of the TOML passed.
      */
     public String writeToString(TOMLValue tomlValue) {
         clear();

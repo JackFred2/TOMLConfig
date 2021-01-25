@@ -9,6 +9,7 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'maven-publish'
 }
 
 
@@ -19,6 +20,7 @@ group = 'red.jackf'
 version = '0.2.0'
 
 repositories {
+    mavenLocal()
     // Use JCenter for resolving dependencies.
     jcenter()
 }
@@ -32,6 +34,7 @@ dependencies {
 
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.withType(JavaCompile) {
@@ -42,5 +45,17 @@ tasks.named('jar') {
     manifest {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version)
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication.class) {
+            artifact(sourcesJar)
+            artifact(javadocJar)
+        }
+    }
+
+    repositories {
     }
 }

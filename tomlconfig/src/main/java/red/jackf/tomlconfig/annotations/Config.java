@@ -2,36 +2,17 @@ package red.jackf.tomlconfig.annotations;
 
 import red.jackf.tomlconfig.data.TOMLValue;
 
-import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Type;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 
 /**
  * <p>Specifies that a class is a configuration file. Only needs to be defined for a top level class.</p>
  * <p>A Config class requires a zero-arg constructor.</p>
  */
 public interface Config {
-
-    /**
-     * Get the file name of the config. By default, this is the class name.
-     * @return File name of the config - will have ".toml" appended.
-     */
-    default String fileName() {
-        return this.getClass().getSimpleName();
-    }
-
-    /**
-     * Gets the folder where the config file will be stored. By default, this is the program's working directory.
-     * @return Path of the configuration directory.
-     */
-    default Path getDirectory() {
-        return FileSystems.getDefault().getPath("");
-    }
 
     /**
      * Called when a config is successfully deserialized.
@@ -47,16 +28,17 @@ public interface Config {
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})
-    @interface Transitive {
-    }
+    @interface Transitive {}
 
     /**
      * <p>Defines a custom setter method to search for to be used when setting the field. Must be public, and take 1
      * argument of the type of the field.</p>
-     * <p>Default behavior is to look for a method called {@code set<FIELDNAME>}; for example for a field named {@code permissions},
+     * <p>Default behavior (without {@code @Setter}) is to look for a method called {@code set<FIELDNAME>}; for example for a field named {@code permissions},
      * it will look for a method called {@code setPermissions(...)}. If one is not found, it will attempt to directly set the
      * field.</p>
-     * <p>Using this annotation causes the parser to <i>expect</i> the method, and to throw if not found.</p>
+     * <p>Using this annotation changes behavior: if the value is the empty string {@code ""}, then it will always
+     * attempt to set the field directly ignoring any setters. Otherwise it will expect a setter with the given name,
+     * and throw if not found.</p>
      *
      * @see red.jackf.tomlconfig.reflections.ClassPopulator#toObject(Type, TOMLValue)
      */
@@ -68,11 +50,19 @@ public interface Config {
 
     /**
      * Defines a comment to be printed before a field. Will be broken into multiple lines if necessary, length of which is
-     * defined in {@link red.jackf.tomlconfig.writer.TOMLWriter}.
+     * defined at {@link red.jackf.tomlconfig.TOMLConfig.Builder#withMaxLineLength(int)}.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @interface Comment {
         String value();
     }
+
+    /**
+     * Alternative to the Java {@code transient} keyword; any fields with this annotation will not be written to a
+     * config file or read from a file. In most cases, the {@code transient} keyword is preferred to this annotation.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface Transient {}
 }

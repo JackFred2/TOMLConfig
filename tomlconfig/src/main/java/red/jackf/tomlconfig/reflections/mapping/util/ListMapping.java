@@ -17,7 +17,7 @@ import java.util.List;
 public class ListMapping implements Mapping<List<?>> {
 
     /**
-     * Object -> TOMLValue, returns a TOMLArray with each element of the list serialized.
+     * Object to TOMLValue, returns a TOMLArray with each element of the list serialized.
      */
     @Override
     public TOMLValue fromObject(ClassPopulator populator, Object obj) throws ParsingException {
@@ -30,7 +30,7 @@ public class ListMapping implements Mapping<List<?>> {
     }
 
     /**
-     * TOMLValue -> Object, returns an ArrayList which each element deserialized according to {@code type}'s type parameter.
+     * TOMLValue to Object, returns an ArrayList which each element deserialized according to {@code type}'s type parameter.
      */
     @Override
     public List<?> toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {

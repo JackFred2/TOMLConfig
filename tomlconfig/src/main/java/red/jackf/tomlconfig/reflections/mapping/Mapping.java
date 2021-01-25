@@ -23,6 +23,7 @@ public interface Mapping<T> {
      *                  needed.
      * @param object    {@code T} object to read data from.
      * @return A {@link TOMLValue} populated with the given object's data.
+     * @throws ParsingException If the object cannot be serialized for whatever reason.
      */
     TOMLValue fromObject(ClassPopulator populator, Object object) throws ParsingException;
 
@@ -30,8 +31,10 @@ public interface Mapping<T> {
      * Create a new {@code T} object from a given {@link TOMLValue} object.
      *
      * @param populator Pass this on recursively if needed.
-     * @param value     {@link TOMLValue} to read data from
+     * @param value     {@link TOMLValue} to read data from.
+     * @param type Type parameter of the object to deserialize.
      * @return {@code T} object, parsed from the given {@link TOMLValue}.
+     * @throws ParsingException If the object cannot be deserialized for whatever reason.
      */
     T toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException;
 }

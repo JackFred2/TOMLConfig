@@ -6,6 +6,9 @@ public abstract class ReflectionUtil {
     /**
      * Create a new instance of a class. Assumes that a no-args constructor exists. Throws a {@link RuntimeException} if
      * no no-arg constructor exists.
+     * @param clazz Class value to instantiate.
+     * @param <C> Type parameter of the class to instantiate.
+     * @return A new instance of {@code clazz}
      */
     public static <C> C instantiate(Class<C> clazz) {
         try {
