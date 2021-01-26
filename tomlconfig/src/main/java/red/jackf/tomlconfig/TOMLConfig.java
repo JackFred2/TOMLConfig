@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
  *     String toml = writer.toString(); </pre>
  * <p>If an object in your configuration requires special handling, you can use {@link #register(Class, Mapping)} to
  * register a custom mapping.</p>
+ * <p>Other customization options are available in the {@link Builder}.</p>
  *
  * @see Config
  * @see ClassPopulator#register(Class, Mapping)

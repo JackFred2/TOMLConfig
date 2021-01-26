@@ -7,3 +7,5 @@ TOMLConfig supports Offset Date-Times, Local Date-Times, Local Dates, and Local 
 
 Second fractions are supported up to the nanosecond (9 digits).
 
+## Getting Started
+A full online guide is to come; for now see the JavaDoc for [TOMLConfig.java](tomlconfig/src/main/java/red/jackf/tomlconfig/TOMLConfig.java).
