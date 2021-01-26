@@ -50,6 +50,7 @@ tasks.named('jar') {
 publishing {
     publications {
         mavenJava(MavenPublication.class) {
+            artifact(jar)
             artifact(sourcesJar)
             artifact(javadocJar)
         }
