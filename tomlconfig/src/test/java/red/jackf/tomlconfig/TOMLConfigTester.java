@@ -14,6 +14,20 @@ public class TOMLConfigTester {
     public void testSerializationAndDeserialization() {
         TOMLConfig CONFIG = TOMLConfig.builder().withIndentationStep(4).build();
         ExampleConfig base = new ExampleConfig();
+        base.version = 100;
+        base.generatedTime = base.generatedTime.minusHours(13);
+        base.mode = ExampleConfig.Mode.DELTA;
+        base.character = 'd';
+        base.double$Val = -4e-12;
+        base.testStr = "l\no\nn\ng";
+        base.flags = new ExampleConfig.Point[][]{
+            new ExampleConfig.Point[]{
+                new ExampleConfig.Point(-40, -45)
+            }
+        };
+        base.users.add(new ExampleConfig.User(2, "god"));
+        base.client.maxRenderTime = 4;
+
         CONFIG.writeConfig(base);
         assertTrue(Files.exists(FileSystems.getDefault().getPath("ExampleConfig.toml")));
         ExampleConfig loaded = CONFIG.readConfig(ExampleConfig.class);
@@ -24,6 +38,6 @@ public class TOMLConfigTester {
 
     @After
     public void deleteTestFiles() throws IOException {
-        Files.delete(FileSystems.getDefault().getPath("ExampleConfig.toml"));
+        //Files.delete(FileSystems.getDefault().getPath("ExampleConfig.toml"));
     }
 }

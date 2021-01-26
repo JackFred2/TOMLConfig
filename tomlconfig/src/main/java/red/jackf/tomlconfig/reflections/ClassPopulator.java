@@ -9,14 +9,15 @@ import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import red.jackf.tomlconfig.reflections.mapping.base.*;
 import red.jackf.tomlconfig.reflections.mapping.util.*;
 
-import java.beans.Transient;
 import java.lang.reflect.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.logging.LogManager;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is responsible for taking an {@link Config} object and populating the

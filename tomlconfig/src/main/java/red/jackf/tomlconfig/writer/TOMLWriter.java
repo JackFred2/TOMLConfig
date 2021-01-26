@@ -102,6 +102,7 @@ public class TOMLWriter {
                     newLine();
                     deIndent();
                     writeToString(array.getData(i), true);
+                    if (i < array.size() - 1) newLine();
                 }
             } else {
                 append('[');
@@ -145,26 +146,26 @@ public class TOMLWriter {
                     if (!skipTitle) newLine();
                 }
 
-                List<String> doAfter = new ArrayList<>();
+                List<String> tablesAndTableArrays = new ArrayList<>();
 
                 for (int i = 0; i < keys.size(); i++) {
                     String key = keys.get(i);
                     TOMLValue value = data.get(key);
-                    if (value instanceof TOMLTable || (value instanceof TOMLArray) && (((TOMLArray) value).onlyTables())) doAfter.add(key);
+                    if (value instanceof TOMLTable || (value instanceof TOMLArray) && (((TOMLArray) value).onlyTables())) tablesAndTableArrays.add(key);
                     else {
                         doComment(value);
                         if (value instanceof TOMLArray) tableStack.push(key);
                         addKey(key);
                         writeToString(value, false);
                         if (value instanceof TOMLArray) tableStack.pop();
-                        if (i < keys.size() - 1 || doAfter.size() > 0)
+                        if (i < keys.size() - 1 || tablesAndTableArrays.size() > 0)
                             newLine();
                     }
                 }
 
-                for (String key : doAfter) {
+                for (String key : tablesAndTableArrays) {
                     TOMLValue value = data.get(key);
-                    newLine();
+                    if (!(value instanceof TOMLArray && ((TOMLArray) value).size() == 0)) newLine();
                     doComment(value);
                     tableStack.push(TOMLString.toTOMLString(key));
                     writeToString(value, false);
@@ -186,7 +187,7 @@ public class TOMLWriter {
                     if (i < keys.size() - 1) builder.append(", ");
                 }
                 inlineTableDepth--;
-                append("}");
+                append(" }");
             }
         }
     }
