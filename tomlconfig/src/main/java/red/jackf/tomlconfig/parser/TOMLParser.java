@@ -14,15 +14,21 @@ import java.util.ListIterator;
 public class TOMLParser {
     private final TOMLTokenizer TOKENIZER = new TOMLTokenizer();
 
+    // Asserts that the given state is one of `expected`.
+    private static void assertState(int index, State current, State... expected) throws ParsingException {
+        for (State state : expected) if (state == current) return;
+        throw new ParsingException("Expected state at index " + index + " to be on of " + Arrays.toString(expected) + ", was " + current);
+    }
+
     /**
      * Parse a string into a valid {@link TOMLValue} object representing the file.
      *
-     * @see TOMLTokenizer#tokenize(String)
-     * @see red.jackf.tomlconfig.reflections.ClassPopulator#toObject(Type, TOMLValue)
      * @param contents The string to parse; will be tokenized then further processed
      * @return A {@link TOMLTable} representation of the passed string.
      * @throws TokenizationException If an error occured during the tokenization process.
      * @throws ParsingException      If the TOML passed does not represent a valid TOML file.
+     * @see TOMLTokenizer#tokenize(String)
+     * @see red.jackf.tomlconfig.reflections.ClassPopulator#toObject(Type, TOMLValue)
      */
     public TOMLTable parse(String contents) throws TokenizationException, ParsingException {
         List<Token> tokens = TOKENIZER.tokenize(contents);
@@ -293,12 +299,6 @@ public class TOMLParser {
         }
 
         return root;
-    }
-
-    // Asserts that the given state is one of `expected`.
-    private static void assertState(int index, State current, State... expected) throws ParsingException {
-        for (State state : expected) if (state == current) return;
-        throw new ParsingException("Expected state at index " + index + " to be on of " + Arrays.toString(expected) + ", was " + current);
     }
 
     private enum State {

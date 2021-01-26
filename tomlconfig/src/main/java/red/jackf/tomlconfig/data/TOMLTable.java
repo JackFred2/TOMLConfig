@@ -3,11 +3,14 @@ package red.jackf.tomlconfig.data;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.tomlconfig.exceptions.ParsingException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class TOMLTable extends TOMLValue {
-    private Sealed sealed = Sealed.NO;
     private final Map<String, TOMLValue> data = new LinkedHashMap<>();
+    private Sealed sealed = Sealed.NO;
 
     protected void addData(String key, TOMLValue value) throws ParsingException {
         if (data.containsKey(key)) throw new ParsingException("Key '" + key + "' already exists in TOMLTable object.");
@@ -85,14 +88,14 @@ public class TOMLTable extends TOMLValue {
         this.sealed = newVal;
     }
 
+    @Override
+    public String toString() {
+        return data.toString();
+    }
+
     public enum Sealed {
         NO, // can write any value
         PARTIAL, // can only write tables
         FULL // cannot write anything
-    }
-
-    @Override
-    public String toString() {
-        return data.toString();
     }
 }

@@ -28,7 +28,8 @@ public class TOMLTableArray extends TOMLTable {
     }
 
     @Override
-    public void seal(Sealed newVal) {}
+    public void seal(Sealed newVal) {
+    }
 
     public TOMLArray toArray() throws ParsingException {
         TOMLArray array = new TOMLArray();

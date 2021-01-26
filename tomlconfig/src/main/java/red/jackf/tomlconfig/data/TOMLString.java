@@ -1,7 +1,5 @@
 package red.jackf.tomlconfig.data;
 
-import red.jackf.tomlconfig.parser.Patterns;
-
 import java.util.regex.Pattern;
 
 public class TOMLString extends TOMLValue {
@@ -9,15 +7,6 @@ public class TOMLString extends TOMLValue {
 
     public TOMLString(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return toTOMLString(value);
     }
 
     public static String toTOMLString(String value) {
@@ -28,5 +17,14 @@ public class TOMLString extends TOMLValue {
         }
         if (!value.contains("'")) return "'" + value + "'";
         else return "\"" + value.replace("\"", "\\\"") + "\"";
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return toTOMLString(value);
     }
 }

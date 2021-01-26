@@ -10,9 +10,11 @@ public abstract class TOMLValue {
 
     /**
      * Internal. Change any of the TableArrays that may in the object to standard arrays.
+     *
      * @throws ParsingException If any table arrays can not be migrated to arrays of tables.
      */
-    public void changeTableArraysToArrays() throws ParsingException {}
+    public void changeTableArraysToArrays() throws ParsingException {
+    }
 
     public String getComment() {
         return comment;

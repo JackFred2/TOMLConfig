@@ -32,7 +32,7 @@ public interface Mapping<T> {
      *
      * @param populator Pass this on recursively if needed.
      * @param value     {@link TOMLValue} to read data from.
-     * @param type Type parameter of the object to deserialize.
+     * @param type      Type parameter of the object to deserialize.
      * @return {@code T} object, parsed from the given {@link TOMLValue}.
      * @throws ParsingException If the object cannot be deserialized for whatever reason.
      */

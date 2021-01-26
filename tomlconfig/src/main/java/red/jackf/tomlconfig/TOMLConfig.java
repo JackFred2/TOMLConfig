@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
  *     String toml = writer.toString(); </pre>
  * <p>If an object in your configuration requires special handling, you can use {@link #register(Class, Mapping)} to
  * register a custom mapping.</p>
+ *
  * @see Config
  * @see ClassPopulator#register(Class, Mapping)
  */
@@ -84,6 +85,7 @@ public class TOMLConfig {
 
     /**
      * Create a new TOMLConfig object with default settings.
+     *
      * @return A default TOMLConfig object.
      */
     public static TOMLConfig get() {
@@ -93,9 +95,8 @@ public class TOMLConfig {
     /**
      * Create a TOMLConfig builder, allowing you to change it's behavior.
      *
-     * @see Builder
-     *
      * @return A builder for a TOMLConfig object.
+     * @see Builder
      */
     public static Builder builder() {
         return new Builder();
@@ -103,6 +104,7 @@ public class TOMLConfig {
 
     /**
      * Get the default file name of the configuration file.
+     *
      * @param spec The config's class file.
      * @return A String representing the default name of the config file.
      */
@@ -113,8 +115,9 @@ public class TOMLConfig {
     /**
      * Save a config object to disk in the default location (the current working directory). Creates any directories
      * that do not exist in the path.
+     *
      * @param config Config object to save to disk.
-     * @param <T> Type parameter of the config object.
+     * @param <T>    Type parameter of the config object.
      */
     public <T extends Config> void writeConfig(T config) {
         writeConfig(config, Paths.get(getFileName(config.getClass())));
@@ -123,9 +126,10 @@ public class TOMLConfig {
 
     /**
      * Save a config object to disk at a custom location. Creates any directories that do not exist in the path.
-     * @param config Config object to save to disk.
+     *
+     * @param config   Config object to save to disk.
      * @param location Path to save the configuration file to.
-     * @param <T> Type parameter of the config object.
+     * @param <T>      Type parameter of the config object.
      */
     public <T extends Config> void writeConfig(T config, Path location) {
         try {
@@ -140,9 +144,10 @@ public class TOMLConfig {
 
     /**
      * Save a config object to a Java Writer, such as a StringWriter or BufferedWriter.
+     *
      * @param config Config object to save to disk.
-     * @param write Writer object to write the file to.
-     * @param <T> Type parameter of the config object.
+     * @param write  Writer object to write the file to.
+     * @param <T>    Type parameter of the config object.
      */
     public <T extends Config> void writeConfig(T config, Writer write) {
         try {
@@ -158,8 +163,9 @@ public class TOMLConfig {
     /**
      * Read a config from the default location on disk (the current working directory). Creates a default config if it
      * is not found, a long with any directories that do not exist in the path.
+     *
      * @param spec Class of the configuration to build.
-     * @param <T> Type parameter of the config object.
+     * @param <T>  Type parameter of the config object.
      * @return An instance of the config object according to {@code spec} loaded from the default location, or a default
      * copy if none found.
      */
@@ -171,9 +177,10 @@ public class TOMLConfig {
     /**
      * Read a config from a custom location on disk. Creates a default config if it
      * is not found, a long with any directories that do not exist in the path.
-     * @param spec Class of the configuration to build.
+     *
+     * @param spec     Class of the configuration to build.
      * @param location Path to the configuration file.
-     * @param <T> Type parameter of the config object.
+     * @param <T>      Type parameter of the config object.
      * @return An instance of the config object according to {@code spec} loaded from given location, or a default
      * copy if none found.
      */
@@ -199,9 +206,10 @@ public class TOMLConfig {
 
     /**
      * Read a config from a String. Does not create any files on disk.
-     * @param spec Class of the configuration to build.
+     *
+     * @param spec       Class of the configuration to build.
      * @param tomlString String representation of the config object.
-     * @param <T> Type parameter of the config object.
+     * @param <T>        Type parameter of the config object.
      * @return An instance of the config object according to the passed String.
      */
     public <T extends Config> T readConfig(Class<T> spec, String tomlString) {
@@ -225,11 +233,10 @@ public class TOMLConfig {
     /**
      * Registers a custom mapping for a class/interface if found during [de]serialization.
      *
+     * @param clazz   Clazz to use this mapping for.
+     * @param mapping Instance of a {@link Mapping} designed for clazz.
      * @see ClassPopulator#register(Class, Mapping)
      * @see Mapping
-     *
-     * @param clazz Clazz to use this mapping for.
-     * @param mapping Instance of a {@link Mapping} designed for clazz.
      */
     public void register(Class<?> clazz, Mapping<?> mapping) {
         this.classPopulator.register(clazz, mapping);

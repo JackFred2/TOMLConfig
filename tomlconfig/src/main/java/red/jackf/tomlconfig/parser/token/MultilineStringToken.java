@@ -18,16 +18,16 @@ public class MultilineStringToken extends Token {
         return type;
     }
 
-    public enum Type {
-        BASIC,
-        LITERAL
-    }
-
     @Override
     public String toString() {
         return "MultilineStringToken{" +
             "text='" + text + '\'' +
             ", type=" + type +
             '}';
+    }
+
+    public enum Type {
+        BASIC,
+        LITERAL
     }
 }

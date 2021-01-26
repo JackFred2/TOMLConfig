@@ -14,10 +14,8 @@ public class TOMLWriter {
     private final int indentStep;
     private final KeySortMode keySortMode;
     private final int maxLineWidth;
-
-    private StringBuilder builder = new StringBuilder();
     private final Stack<String> tableStack = new Stack<>();
-
+    private StringBuilder builder = new StringBuilder();
     private int indentLevel = 0;
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
@@ -55,6 +53,7 @@ public class TOMLWriter {
 
     /**
      * Serialize a TOMLValue using this TOMLWriter's settings.
+     *
      * @param tomlValue {@link TOMLValue} to serialize.
      * @return String representation of the TOML passed.
      */

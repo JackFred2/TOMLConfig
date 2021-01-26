@@ -1,6 +1,5 @@
 package red.jackf.tomlconfig.parser;
 
-import red.jackf.tomlconfig.data.TOMLValue;
 import red.jackf.tomlconfig.exceptions.TokenizationException;
 import red.jackf.tomlconfig.parser.token.*;
 import red.jackf.tomlconfig.parser.token.processing.DoubleLeftBracketToken;

@@ -1,10 +1,10 @@
 package red.jackf.tomlconfig.reflections.mapping.util;
 
-import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.data.TOMLArray;
 import red.jackf.tomlconfig.data.TOMLKey;
 import red.jackf.tomlconfig.data.TOMLTable;
 import red.jackf.tomlconfig.data.TOMLValue;
+import red.jackf.tomlconfig.exceptions.ParsingException;
 import red.jackf.tomlconfig.reflections.ClassPopulator;
 import red.jackf.tomlconfig.reflections.mapping.Mapping;
 

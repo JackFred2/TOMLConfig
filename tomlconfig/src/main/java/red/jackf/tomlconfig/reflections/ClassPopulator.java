@@ -24,9 +24,8 @@ import java.util.Set;
  * fields with a given {@link TOMLTable} object.
  */
 public class ClassPopulator {
-    private final Map<Type, Mapping<?>> mappings = new HashMap<>();
-
     private static final Mapping<Object> ARRAY_MAPPING = new ArrayMapping();
+    private final Map<Type, Mapping<?>> mappings = new HashMap<>();
 
     /**
      * Create a new ClassPopulator, with all default mappings loaded. Additional mappings for custom objects can be
@@ -87,13 +86,13 @@ public class ClassPopulator {
      *     hasMapping(Shape.class) == true;
      *     hasMapping(Rectangle.class) == true; </pre>
      *
-     * @see Mapping
-     *
      * @param clazz   Class that the mapping supports;
      * @param mapping An instance of a {@link Mapping} object;
+     * @see Mapping
      */
     public void register(Class<?> clazz, Mapping<?> mapping) {
-        if (mappings.containsKey(clazz)) System.err.println("New mapping " + mapping.getClass().getCanonicalName() + " overwrites existing mapping " + mappings.get(clazz).getClass().getCanonicalName());
+        if (mappings.containsKey(clazz))
+            System.err.println("New mapping " + mapping.getClass().getCanonicalName() + " overwrites existing mapping " + mappings.get(clazz).getClass().getCanonicalName());
         mappings.put(clazz, mapping);
     }
 
@@ -140,9 +139,10 @@ public class ClassPopulator {
     /**
      * Internal method to deserialize objects. Uses a mapping if available, or tries to
      * populate the fields manually if not. Use this method to recursively deserialize objects if writing your own {@link Mapping}.
-     * @param type Type of the object you're expecting
+     *
+     * @param type  Type of the object you're expecting
      * @param value TOML representation of the object
-     * @param <T> Type of object to serialize.
+     * @param <T>   Type of object to serialize.
      * @return The object that you're expecting, populated with data from {@code value}
      * @throws ParsingException If the object can not be deserialized correctly.
      */

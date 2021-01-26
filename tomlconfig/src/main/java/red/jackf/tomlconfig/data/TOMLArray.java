@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class TOMLArray extends TOMLValue {
-    private boolean sealed = false;
     private final List<TOMLValue> values = new ArrayList<>();
+    private boolean sealed = false;
 
     public void addData(TOMLValue value) throws ParsingException {
-        if(sealed) throw new ParsingException("Attempt to add an object to a sealed array.");
+        if (sealed) throw new ParsingException("Attempt to add an object to a sealed array.");
         this.values.add(value);
     }
 

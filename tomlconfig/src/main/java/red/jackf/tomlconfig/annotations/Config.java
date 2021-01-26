@@ -17,7 +17,8 @@ public interface Config {
     /**
      * Called when a config is successfully deserialized.
      */
-    default void onLoad() {}
+    default void onLoad() {
+    }
 
     /**
      * <p>Marks a class to be serialised as-is under a sub header, without any special serialization method.
@@ -28,7 +29,8 @@ public interface Config {
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})
-    @interface Transitive {}
+    @interface Transitive {
+    }
 
     /**
      * <p>Defines a custom setter method to search for to be used when setting the field. Must be public, and take 1
@@ -64,5 +66,6 @@ public interface Config {
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface Transient {}
+    @interface Transient {
+    }
 }

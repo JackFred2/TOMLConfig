@@ -20,10 +20,6 @@ public class TOMLKey {
         this.path = path;
     }
 
-    public List<String> getPath() {
-        return path;
-    }
-
     public static TOMLKey of(List<Token> tokens) {
         List<String> path = new ArrayList<>(tokens.size());
         for (Token token : tokens) {
@@ -36,6 +32,10 @@ public class TOMLKey {
             }
         }
         return new TOMLKey(path);
+    }
+
+    public List<String> getPath() {
+        return path;
     }
 
     @Override
