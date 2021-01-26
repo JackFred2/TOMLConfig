@@ -296,8 +296,8 @@ public class TOMLConfig {
          *     <li> KeySortMode.DECLARATION_ORDER - Sort keys by the order they are declared in the class.
          *     <li> KeySortMode.ALPHABETICAL_ORDER - Sort keys in alphabetical order.
          * </ul>
-         * <p>Tables (and arrays of tables) are always written after the rest of the object due to TOML mechanics, but
-         * otherwise still respect this mode.</p>
+         * <p>Tables are always written after standard keys, and arrays of tables written after that irrespective of this
+         * option.</p>
          * <p>Default is {@code KeySortMode.DECLARATION_ORDER}.</p>
          *
          * @param keySortMode Which mode to sort by. One of {@link KeySortMode}.
