@@ -1,0 +1,4 @@
+allprojects {
+    group = "red.jackf.tomlconfig"
+    version = "0.2.0"
+}
