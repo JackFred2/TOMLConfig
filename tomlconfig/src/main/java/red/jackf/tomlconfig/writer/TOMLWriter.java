@@ -21,7 +21,7 @@ public class TOMLWriter {
     private int indentLevel = 0;
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
-    //private int distanceToLineStart = 0;
+    private int newlineCount = 0;
 
     public TOMLWriter(int indentStep, int maxLineWidth, KeySortMode keySortMode) {
         this.maxLineWidth = maxLineWidth;
@@ -44,13 +44,13 @@ public class TOMLWriter {
     }
 
     private void append(String str) {
+        newlineCount = 0;
         builder.append(str);
-        //distanceToLineStart += str.length();
     }
 
     private void append(char c) {
+        newlineCount = 0;
         builder.append(c);
-        //distanceToLineStart += 1;
     }
 
     /**
@@ -95,6 +95,8 @@ public class TOMLWriter {
             if (array.onlyTables() && normalArrayDepth == 0) {
 
                 for (int i = 0; i < array.size(); i++) {
+                    newLine();
+                    if (i == 0) doComment(array);
                     append("[[");
                     printTableNameStack();
                     append("]]");
@@ -146,27 +148,37 @@ public class TOMLWriter {
                     if (!skipTitle) newLine();
                 }
 
-                List<String> tablesAndTableArrays = new ArrayList<>();
+                List<String> tables = new ArrayList<>();
+                List<String> tableArrays = new ArrayList<>();
 
                 for (int i = 0; i < keys.size(); i++) {
                     String key = keys.get(i);
                     TOMLValue value = data.get(key);
-                    if (value instanceof TOMLTable || (value instanceof TOMLArray) && (((TOMLArray) value).onlyTables())) tablesAndTableArrays.add(key);
+                    if (value instanceof TOMLTable) tables.add(key);
+                    else if ((value instanceof TOMLArray) && (((TOMLArray) value).onlyTables())) tableArrays.add(key);
                     else {
                         doComment(value);
                         if (value instanceof TOMLArray) tableStack.push(key);
                         addKey(key);
                         writeToString(value, false);
                         if (value instanceof TOMLArray) tableStack.pop();
-                        if (i < keys.size() - 1 || tablesAndTableArrays.size() > 0)
+                        if (i < keys.size() - 1 || tables.size() > 0)
                             newLine();
                     }
                 }
 
-                for (String key : tablesAndTableArrays) {
+                for (String key : tables) {
                     TOMLValue value = data.get(key);
-                    if (!(value instanceof TOMLArray && ((TOMLArray) value).size() == 0)) newLine();
+                    newLine();
                     doComment(value);
+                    tableStack.push(TOMLString.toTOMLString(key));
+                    writeToString(value, false);
+                    tableStack.pop();
+                }
+
+                for (String key : tableArrays) {
+                    TOMLArray value = (TOMLArray) data.get(key);
+                    if (value.size() != 0) newLine();
                     tableStack.push(TOMLString.toTOMLString(key));
                     writeToString(value, false);
                     tableStack.pop();
@@ -174,7 +186,6 @@ public class TOMLWriter {
 
                 if (!root) {
                     deIndent();
-                    newLine();
                 }
             } else {
                 append("{ ");
@@ -199,20 +210,26 @@ public class TOMLWriter {
     private void doComment(TOMLValue value) {
         if (value.getComment() != null) {
             List<String> lines = new ArrayList<>();
-            String[] words = value.getComment().split(" ");
-            StringBuilder current = new StringBuilder();
-            for (int i = 0; i < words.length; i++) {
-                String word = words[i];
-                if (current.length() == 0 || current.length() + 1 + word.length() <= maxLineWidth - 2 - indentLevel) {
-                    if (current.length() == 0) current = new StringBuilder(word);
-                    else current.append(" ").append(word);
-                } else {
-                    lines.add(current.toString());
-                    current = new StringBuilder();
-                    current.append(word);
-                }
+            List<List<String>> words = new ArrayList<>();
+            for (String s : value.getComment().split("\n")) {
+                words.add(Arrays.asList(s.split(" ")));
             }
-            lines.add(current.toString());
+            StringBuilder current = new StringBuilder();
+            for (List<String> wordList : words) {
+                for (int i = 0; i < wordList.size(); i++) {
+                    String word = wordList.get(i);
+                    if (current.length() == 0 || current.length() + 1 + word.length() <= maxLineWidth - 2 - indentLevel) { // break word onto new line
+                        if (current.length() == 0) current = new StringBuilder(word);
+                        else current.append(" ").append(word);
+                    } else {
+                        lines.add(current.toString());
+                        current = new StringBuilder();
+                        current.append(word);
+                    }
+                }
+                lines.add(current.toString());
+                current = new StringBuilder();
+            }
             for (String line : lines) {
                 append("# ");
                 append(line);
@@ -238,8 +255,10 @@ public class TOMLWriter {
     }
 
     private void newLine() {
-        append('\n');
-        for (int i = 0; i < indentLevel; i++) append(' ');
-        //distanceToLineStart = indentLevel;
+        if (newlineCount <= 1) {
+            append('\n');
+            for (int i = 0; i < indentLevel; i++) append(' ');
+            newlineCount++;
+        }
     }
 }
