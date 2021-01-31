@@ -239,9 +239,15 @@ public class ClassPopulator {
                         String name = field.getName();
                         if (field.get(object) != null) { // null fields will not be added.
                             TOMLValue fieldValue = fromObject(field.get(object));
-                            Config.Comment comment = field.getAnnotation(Config.Comment.class);
-                            if (comment != null) {
-                                fieldValue.setComment(comment.value());
+                            Config.Comment[] comments = field.getAnnotationsByType(Config.Comment.class);
+                            if (comments.length > 0) {
+                                StringBuilder comment = new StringBuilder();
+                                for (int i = 0; i < comments.length; i++) {
+                                    if (i > 0) comment.append('\n');
+                                    String value = comments[i].value();
+                                    comment.append(value);
+                                }
+                                fieldValue.setComment(comment.toString());
                             }
                             root.addData(new TOMLKey(name), fieldValue);
                         }

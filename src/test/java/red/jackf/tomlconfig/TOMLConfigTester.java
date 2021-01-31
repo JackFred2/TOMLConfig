@@ -38,6 +38,6 @@ public class TOMLConfigTester {
 
     @After
     public void deleteTestFiles() throws IOException {
-        //Files.delete(FileSystems.getDefault().getPath("ExampleConfig.toml"));
+        Files.delete(FileSystems.getDefault().getPath("ExampleConfig.toml"));
     }
 }

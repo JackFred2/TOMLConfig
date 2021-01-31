@@ -40,6 +40,7 @@ public class ExampleConfig implements Config {
     @Comment("This is a set of client options, but really to test the writer's max line length option Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tempor tellus dignissim, efficitur velit in, molestie risus. Phasellus rhoncus augue ipsum, non bibendum arcu pellentesque nec. Praesent rutrum vulputate vehicula. Etiam gravida, risus vel viverra elementum, lorem justo viverra arcu, at tristique eros odio in nisi.")
     public Client client = new Client();
     @Comment("Comments can be applied to fields, and will be printed to the config file.")
+    @Comment("Comment annotations can also be repeated!")
     public List<User> users = new ArrayList<>();
 
     {

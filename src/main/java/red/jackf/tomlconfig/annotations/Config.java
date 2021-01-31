@@ -2,10 +2,7 @@ package red.jackf.tomlconfig.annotations;
 
 import red.jackf.tomlconfig.data.TOMLValue;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.lang.reflect.Type;
 
 /**
@@ -52,12 +49,24 @@ public interface Config {
 
     /**
      * Defines a comment to be printed before a field. Will be broken into multiple lines if necessary, length of which is
-     * defined at {@link red.jackf.tomlconfig.TOMLConfig.Builder#withMaxLineLength(int)}.
+     * defined at {@link red.jackf.tomlconfig.TOMLConfig.Builder#withMaxLineLength(int)}. You may use this annotation multiple
+     * times, which will result in lines being concatenated with a newline.
      */
+    @Repeatable(Comment.CommentsList.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @interface Comment {
         String value();
+
+        /**
+         * Internal class for repeated comment annotations. You can use this, but it is preferred to repeat the
+         * {@link @Config.Comment} annotation.
+         */
+        @Retention(RetentionPolicy.RUNTIME)
+        @Target(ElementType.FIELD)
+        @interface CommentsList {
+            Comment[] value();
+        }
     }
 
     /**

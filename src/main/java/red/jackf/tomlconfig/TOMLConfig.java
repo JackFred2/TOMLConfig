@@ -249,7 +249,7 @@ public class TOMLConfig {
     public static class Builder {
         private int indentationStep = 2;
         private int maxLineLength = 80;
-        private FailMode readFailMode = FailMode.THROW;
+        private FailMode readFailMode = FailMode.LOG_AND_LOAD_DEFAULT;
         private KeySortMode keySortMode = KeySortMode.DECLARATION_ORDER;
 
         private Builder() {
@@ -262,7 +262,7 @@ public class TOMLConfig {
          *     <li>FailMode.THROW - Throw the exception upwards through the call chain.
          *     <li>FailMode.LOG_AND_LOAD_DEFAULT - Log the exception to System.err and load a default copy of the config.
          * </ul>
-         * <p>Default is {@code FailMode.THROW}.</p>
+         * <p>Default is {@code FailMode.LOG_AND_LOAD_DEFAULT}.</p>
          *
          * @param mode What should happen on loading failure
          * @return The Builder object
