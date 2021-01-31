@@ -14,59 +14,15 @@ Second fractions are supported up to the nanosecond (9 digits).
 
 ### Project Setup
 
-#### The Repository
-
-Currently, you need to add the repository manually. For Gradle, use this:
+Ensure that you have the JCenter repository; for Gradle:
 
 ```groovy
-repositories {
-    maven {
-        url  "https://dl.bintray.com/jackfred/TOMLConfig" 
-    }
+repositories {  
+    jcenter()  
 }
 ```
 
-For Maven:
-
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<settings xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd'
-          xmlns='http://maven.apache.org/SETTINGS/1.0.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
-
-   <profiles>
-      <profile>
-         <repositories>
-            <repository>
-               <snapshots>
-                  <enabled>false</enabled>
-               </snapshots>
-               <id>bintray-jackfred-TOMLConfig</id>
-               <name>bintray</name>
-               <url>https://dl.bintray.com/jackfred/TOMLConfig</url>
-            </repository>
-         </repositories>
-         <pluginRepositories>
-            <pluginRepository>
-               <snapshots>
-                  <enabled>false</enabled>
-               </snapshots>
-               <id>bintray-jackfred-TOMLConfig</id>
-               <name>bintray-plugins</name>
-               <url>https://dl.bintray.com/jackfred/TOMLConfig</url>
-            </pluginRepository>
-         </pluginRepositories>
-         <id>bintray</id>
-      </profile>
-   </profiles>
-   <activeProfiles>
-      <activeProfile>bintray</activeProfile>
-   </activeProfiles>
-</settings>
-```
-
-#### The Library
-
-Replace `%VERSION%` with the latest version:
+Then, replacing `%VERSION%` with the latest version:
 
 [ ![Download](https://api.bintray.com/packages/jackfred/TOMLConfig/TOMLConfig/images/download.svg) ](https://bintray.com/jackfred/TOMLConfig/TOMLConfig/_latestVersion)
 
