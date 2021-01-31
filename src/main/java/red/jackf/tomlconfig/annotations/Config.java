@@ -60,7 +60,7 @@ public interface Config {
 
         /**
          * Internal class for repeated comment annotations. You can use this, but it is preferred to repeat the
-         * {@link @Config.Comment} annotation.
+         * above annotation.
          */
         @Retention(RetentionPolicy.RUNTIME)
         @Target(ElementType.FIELD)
