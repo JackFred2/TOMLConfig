@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
@@ -38,6 +40,17 @@ public class TOMLConfigTester {
 
     @After
     public void deleteTestFiles() throws IOException {
-        Files.delete(FileSystems.getDefault().getPath("ExampleConfig.toml"));
+        Path path1 = Paths.get("ExampleConfig.toml");
+        Path path2 = Paths.get("TestConfig.toml");
+        if (Files.exists(path1)) Files.delete(path1);
+        if (Files.exists(path2)) Files.delete(path2);
+    }
+
+    @Test
+    public void test() {
+        TOMLConfig CONFIG = TOMLConfig.builder().withIndentationStep(2).build();
+        TestConfig config = CONFIG.readConfig(TestConfig.class);
+        CONFIG.writeConfig(config);
+        CONFIG.readConfig(TestConfig.class);
     }
 }

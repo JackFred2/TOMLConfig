@@ -247,7 +247,7 @@ public class TOMLConfig {
      * A builder for a TOMLConfig object. You should call {@link #build()} once any settings are finished being changed.
      */
     public static class Builder {
-        private int indentationStep = 2;
+        private int indentationStep = 4;
         private int maxLineLength = 80;
         private FailMode readFailMode = FailMode.LOG_AND_LOAD_DEFAULT;
         private KeySortMode keySortMode = KeySortMode.DECLARATION_ORDER;
@@ -287,7 +287,7 @@ public class TOMLConfig {
 
         /**
          * <p>Sets the indentation step - this is incremented between table headers and in arrays.</p>
-         * <p>Default is 2 spaces.</p>
+         * <p>Default is 4 spaces.</p>
          *
          * @param indentationStep How large the indentation step is, in space count
          * @return The Builder object.

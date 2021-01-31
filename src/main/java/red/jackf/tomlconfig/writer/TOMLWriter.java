@@ -19,7 +19,7 @@ public class TOMLWriter {
     private int indentLevel = 0;
     private int normalArrayDepth = 0;
     private int inlineTableDepth = 0;
-    private int newlineCount = 0;
+    private int newlineCount = 2;
 
     public TOMLWriter(int indentStep, int maxLineWidth, KeySortMode keySortMode) {
         this.maxLineWidth = maxLineWidth;
@@ -47,7 +47,7 @@ public class TOMLWriter {
     }
 
     private void append(char c) {
-        newlineCount = 0;
+        if (c != '\n') newlineCount = 0;
         builder.append(c);
     }
 
@@ -168,16 +168,17 @@ public class TOMLWriter {
 
                 for (String key : tables) {
                     TOMLValue value = data.get(key);
-                    newLine();
+                    if (keys.size() > 0) newLine();
                     doComment(value);
                     tableStack.push(TOMLString.toTOMLString(key));
                     writeToString(value, false);
                     tableStack.pop();
+                    newLine();
                 }
 
                 for (String key : tableArrays) {
                     TOMLArray value = (TOMLArray) data.get(key);
-                    if (value.size() != 0) newLine();
+                    //if (value.size() != 0) newLine();
                     tableStack.push(TOMLString.toTOMLString(key));
                     writeToString(value, false);
                     tableStack.pop();
