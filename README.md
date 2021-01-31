@@ -79,6 +79,8 @@ This creates a default configuration file in the program's working directory if 
 
 ## Further Configuration
 
+TOMLConfig is documented and has JavaDocs available.
+
 ### Saving manually
 
 You can save your configuration during runtime using `TOMLCONFIG#writeConfig()`, such as if it was updated by a GUI or
@@ -403,5 +405,3 @@ The rules for deciding which mapping is as follows:
 
 If a class, or a field holding the class is marked with `@Transitive`, then no mapping is used, and the class is 
 serialized key-by-key.
-
-
