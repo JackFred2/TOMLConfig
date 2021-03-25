@@ -1,10 +1,9 @@
 plugins {
     id "java-library"
     id "maven-publish"
-
-    id 'com.jfrog.bintray' version "1.8.5"
 }
 
+archivesBaseName = "tomlconfig"
 group = "red.jackf"
 version = "0.2.3"
 
@@ -38,43 +37,20 @@ tasks.named("jar") {
     }
 }
 
-
-
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_KEY")
-    setPublications("mavenJava")
-    publish = true
-
-    pkg {
-        repo = "TOMLConfig"
-        name = "TOMLConfig"
-        desc = "TOML-based configuration library"
-        userOrg = "jackfred"
-        licenses = ["LGPL-3.0"]
-
-        websiteUrl = "https://github.com/JackFred2/TOMLConfig"
-        githubRepo = "JackFred2/TOMLConfig"
-        issueTrackerUrl = "https://github.com/JackFred2/TOMLConfig/issues"
-        vcsUrl = "https://github.com/JackFred2/TOMLConfig.git"
-
-        version {
-            name = project.version
-            vcsTag = project.version
-            released = new Date()
-        }
-    }
-}
-
 publishing {
-    publications {
-        mavenJava(MavenPublication.class) {
-            artifact(jar)
-            artifact(sourcesJar)
-            artifact(javadocJar)
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/jackfred2/TOMLConfig")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
         }
     }
-
-    repositories {
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
     }
 }

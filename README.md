@@ -12,37 +12,31 @@ Second fractions are supported up to the nanosecond (9 digits).
 
 ## Quickstart
 
-### Project Setup
+### Project Setup with Gradle
 
-Ensure that you have the JCenter repository; for Gradle:
+[Authenticate with GitHub packages](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages#authenticating-to-github-packages) - abridged guide [here](https://gist.github.com/JackFred2/4da268bad881db41200c0ebcdab2ff09).
+
+Then, in your project's `build.gradle`, add the following to your `repositories` section:
 
 ```groovy
-repositories {  
-    jcenter()  
+maven {
+    name = "GitHubPackages - TOMLConfig"
+    url = uri("https://maven.pkg.github.com/JackFred2/TOMLConfig")
+    credentials {
+        username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+        password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+    }
 }
 ```
 
-Then, replacing `%VERSION%` with the latest version:
+Finally, in your `dependencies` section, add the following, replacing `%VERSION` with your latest version:
 
 [ ![Download](https://api.bintray.com/packages/jackfred/TOMLConfig/TOMLConfig/images/download.svg) ](https://bintray.com/jackfred/TOMLConfig/TOMLConfig/_latestVersion)
 
-#### Gradle
-
 ```groovy
 dependencies {
-    implementation 'red.jackf:TOMLConfig:%VERSION%'
+    implementation 'red.jackf:tomlconfig:%VERSION%'
 }
-```
-
-#### Maven
-
-```xml
-<dependency>
-    <groupId>red.jackf</groupId>
-    <artifactId>TOMLConfig</artifactId>
-    <version>%VERSION%</version>
-    <type>pom</type>
-</dependency>
 ```
 
 ### Creating a configuration file
@@ -86,7 +80,7 @@ This creates a default configuration file in the program's working directory if 
 
 ## Further Configuration
 
-TOMLConfig is documented and has JavaDocs available.
+TOMLConfig has JavaDocs available, this section covers some small features:
 
 ### Saving manually
 
