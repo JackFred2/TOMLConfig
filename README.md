@@ -29,9 +29,9 @@ maven {
 }
 ```
 
-Finally, in your `dependencies` section, add the following, replacing `%VERSION` with your latest version:
+Finally, in your `dependencies` section, add the following, replacing `%VERSION` with your latest version (removing the `v`):
 
-[ ![Download](https://api.bintray.com/packages/jackfred/TOMLConfig/TOMLConfig/images/download.svg) ](https://bintray.com/jackfred/TOMLConfig/TOMLConfig/_latestVersion)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/JackFred2/TOMLConfig?label=Use%3A&style=flat-square)
 
 ```groovy
 dependencies {
