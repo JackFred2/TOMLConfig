@@ -9,6 +9,7 @@ import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SetMapping implements Mapping<Set<?>> {
@@ -24,7 +25,7 @@ public class SetMapping implements Mapping<Set<?>> {
 
     @Override
     public Set<?> toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
-        Set<Object> set = new HashSet<>();
+        Set<Object> set = new LinkedHashSet<>();
         int size = ((TOMLArray) value).size();
         for (int i = 0; i < size; i++) {
             set.add(populator.toObject(((ParameterizedType) type).getActualTypeArguments()[0], ((TOMLArray) value).getData(i)));

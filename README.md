@@ -292,8 +292,8 @@ Stock TOMLConfig supports the following java types:
 | `LocalDate`         |
 | `LocalTime`         |
 | `List<T>`           | Deserialization creates an `ArrayList`.
-| `Set<T>`            | Deserialization creates a `HashSet`.
-| `Map<S,T>`          | Deserialization creates a `HashMap`.
+| `Set<T>`            | Deserialization creates a `LinkedHashSet`.
+| `Map<S,T>`          | Deserialization creates a `LinkedHashMap`.
 
 You can define handlers for other types in two ways: by using the `@Transitive` annotation (easier, less flexible), or 
 by registering a custom `Mapping` object.
@@ -360,11 +360,17 @@ Result:
     "Fred"
   ]
   
-  # Note the different ordering due to the nature of a HashSet - this can be 
-  # remedied using a LinkedHashSet.
+  [[server.allowedUsers]]
+    name = "Jack"
+    id = 1
+
   [[server.allowedUsers]]
     name = "Fred"
     id = 2
+
+  [[server.allowedUsers]]
+    name = "Alice"
+    id = 3
   
   [[server.allowedUsers]]
     name = "Bob"
@@ -373,14 +379,6 @@ Result:
   [[server.allowedUsers]]
     name = "Charlie"
     id = 11
-  
-  [[server.allowedUsers]]
-    name = "Alice"
-    id = 3
-  
-  [[server.allowedUsers]]
-    name = "Jack"
-    id = 1
 ```
 **Important Note**: Classes marked with `@Transitive` **must** have a zero-argument constructor available. This means
 creating one if a constructor with more than 1 argument has already been defined - it can be `private`.

@@ -11,6 +11,7 @@ import red.jackf.tomlconfig.reflections.mapping.Mapping;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MapMapping implements Mapping<Map<?, ?>> {
@@ -29,7 +30,7 @@ public class MapMapping implements Mapping<Map<?, ?>> {
 
     @Override
     public Map<?, ?> toObject(ClassPopulator populator, Type type, TOMLValue value) throws ParsingException {
-        Map<Object, Object> map = new HashMap<>();
+        Map<Object, Object> map = new LinkedHashMap<>();
         TOMLArray array = (TOMLArray) value;
         for (int i = 0; i < array.size(); i++) {
             TOMLTable element = (TOMLTable) array.getData(i);
